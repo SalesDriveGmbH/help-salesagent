@@ -90,11 +90,12 @@ export default function EscalationModal({ chatHistory, onClose }: Props) {
         }),
       });
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
+        const data = await res.json().catch(() => ({} as any));
         if (res.status === 429) {
           throw new Error("Du hast heute schon ein Ticket eröffnet. Probier es morgen erneut oder schreib an office@salesagent.at.");
         }
-        throw new Error(data.error ?? `HTTP ${res.status}`);
+        const detail = (data as any).detail ? ` — ${(data as any).detail}` : "";
+        throw new Error(`${(data as any).error ?? `HTTP ${res.status}`}${detail}`);
       }
       setDone(true);
     } catch (e: any) {
