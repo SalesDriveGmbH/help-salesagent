@@ -37,6 +37,12 @@ interface Props {
 
 export default function MarkdownEditor({ value, onChange, height = 480 }: Props) {
   const rendered = useMemo(() => renderMarkdown(value), [value]);
+  const stats = useMemo(() => {
+    const words = (value.match(/\b\w+\b/g) ?? []).length;
+    const chars = value.length;
+    const mins = Math.max(1, Math.round(words / 200));
+    return { words, chars, mins };
+  }, [value]);
 
   function insertMd(prefix: string, suffix = "") {
     const el = document.activeElement as HTMLTextAreaElement | null;
@@ -73,6 +79,13 @@ export default function MarkdownEditor({ value, onChange, height = 480 }: Props)
           style={{ fontFamily: "var(--font-mono)", fontSize: 13.5, lineHeight: 1.65 }}
         />
         <div className="prose-gold overflow-y-auto rounded-lg border p-5 h-full" style={{ borderColor: "var(--color-border-subtle)", background: "rgba(14,14,14,0.5)" }} dangerouslySetInnerHTML={{ __html: rendered }} />
+      </div>
+      <div className="mt-2 flex items-center justify-end gap-4 text-[11px]" style={{ color: "var(--color-text-tertiary)", fontFamily: "var(--font-mono)" }}>
+        <span>{stats.words} Wörter</span>
+        <span>·</span>
+        <span>{stats.chars} Zeichen</span>
+        <span>·</span>
+        <span>{stats.mins} Min. Lesezeit</span>
       </div>
     </div>
   );
