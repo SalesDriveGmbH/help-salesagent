@@ -24,7 +24,7 @@ export default function AdminDashboard({ categories, articles }: { categories: C
   return (
     <div className="space-y-8">
       <nav
-        className="flex flex-wrap items-center gap-2 rounded-xl border p-1.5"
+        className="flex flex-wrap items-center gap-2 rounded-md border p-1.5"
         style={{ borderColor: "var(--color-border-subtle)", background: "rgba(14, 14, 14, 0.5)" }}
       >
         {TABS.map((t) => {

@@ -8,7 +8,7 @@ related: ["M01"]
 last_updated: "2026-05-14"
 faq_priority: 21
 tldr: "Mo–Fr 09:00–17:00 CET. Max. 24h Antwort an Werktagen."
-escalate_to: "office@salesdrive.at"
+escalate_to: "office@salesagent.at"
 escalate_tag: "allgemein"
 ---
 

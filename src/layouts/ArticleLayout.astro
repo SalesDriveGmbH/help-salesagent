@@ -51,7 +51,7 @@ const h2Headings = headings.filter((h) => h.depth === 2);
         </header>
 
         {data.status !== "complete" && (
-          <aside class="mt-8 rounded-xl border p-5" style="border-color: var(--color-border-default); background: rgba(191, 163, 124, 0.05);">
+          <aside class="mt-8 rounded-md border p-5" style="border-color: var(--color-border-default); background: rgba(191, 163, 124, 0.05);">
             <div class="flex items-start gap-3">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-gold-bright); margin-top: 2px;">
                 <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/>
@@ -64,7 +64,7 @@ const h2Headings = headings.filter((h) => h.depth === 2);
                 </strong>
                 <p class="mt-1" style="color: var(--color-text-secondary);">
                   Einzelne Angaben werden noch finalisiert. Bei dringenden Fragen direkt im Chat eskalieren oder an
-                  <a href={`mailto:${data.escalate_to ?? "office@salesdrive.at"}`} class="underline" style="color: var(--color-gold-light);">{data.escalate_to ?? "office@salesdrive.at"}</a> schreiben.
+                  <a href={`mailto:${data.escalate_to ?? "office@salesagent.at"}`} class="underline" style="color: var(--color-gold-light);">{data.escalate_to ?? "office@salesagent.at"}</a> schreiben.
                 </p>
                 <button data-open-chat class="btn btn-ghost mt-3" type="button">
                   Mit Sandy chatten
@@ -81,7 +81,7 @@ const h2Headings = headings.filter((h) => h.depth === 2);
           <Content />
         </div>
 
-        <section class="mt-14 rounded-xl border p-5" style="border-color: var(--color-border-subtle); background: rgba(14, 14, 14, 0.5);">
+        <section class="mt-14 rounded-md border p-5" style="border-color: var(--color-border-subtle); background: rgba(14, 14, 14, 0.5);">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <p class="text-sm" style="color: var(--color-text-secondary);">War dieser Artikel hilfreich?</p>
             <div class="flex gap-2">
@@ -138,7 +138,7 @@ const h2Headings = headings.filter((h) => h.depth === 2);
         if (value === "yes") {
           msg.textContent = "Danke für dein Feedback.";
         } else {
-          msg.innerHTML = `Schade — <a href="#" data-open-chat class="underline">frag Sandy im Chat</a> oder schreib uns an <a href="mailto:office@salesdrive.at" class="underline">office@salesdrive.at</a>.`;
+          msg.innerHTML = `Schade — <a href="#" data-open-chat class="underline">frag Sandy im Chat</a> oder schreib uns an <a href="mailto:office@salesagent.at" class="underline">office@salesagent.at</a>.`;
         }
       });
     });

@@ -8,13 +8,13 @@ related: ["V01"]
 last_updated: "2026-05-14"
 faq_priority: 16
 tldr: "1 Monat zum Monatsende, schriftlich (Email reicht). Danach 12 Monate Wettbewerbsverbot."
-escalate_to: "office@salesdrive.at"
+escalate_to: "office@salesagent.at"
 escalate_tag: "kuendigung"
 ---
 
 (HVV §16) **1 Monat zum Monatsende.** Schriftform (Email reicht).
 
-**Wohin:** `office@salesdrive.at`.
+**Wohin:** `office@salesagent.at`.
 
 ## Folgen einer Kündigung
 

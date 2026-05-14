@@ -1,42 +1,30 @@
 ---
 ---
 <footer class="relative z-10 mt-24 border-t" style="border-color: var(--color-border-subtle);">
-  <div class="mx-auto max-w-6xl px-6 py-12">
-    <div class="grid grid-cols-1 gap-10 md:grid-cols-4">
-      <div class="md:col-span-2">
-        <div class="flex items-center gap-3">
-          <img src="/logo.png" alt="SalesAgent" style="height: 24px; width: auto; opacity: 0.85;" />
-        </div>
-        <p class="mt-4 max-w-sm text-sm" style="color: var(--color-text-secondary);">
-          Der zentrale Hilfebereich für SalesAgents der SalesDrive GmbH. Alles, was du als SalesAgent wissen musst.
-        </p>
+  <div class="mx-auto max-w-6xl px-6 py-10">
+    <div class="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
+      <div class="flex items-center gap-3">
+        <img src="/logo.png" alt="SalesAgent" style="height: 22px; width: auto; opacity: 0.85;" class="logo-img" />
       </div>
 
-      <div>
-        <h4 class="text-xs uppercase tracking-[0.16em]" style="color: var(--color-text-tertiary);">Kontakt</h4>
-        <ul class="mt-3 space-y-1.5 text-sm" style="color: var(--color-text-secondary);">
-          <li><a href="mailto:office@salesdrive.at" class="hover:text-[var(--color-gold-light)]">office@salesdrive.at</a></li>
-          <li><a href="mailto:accounting@salesdrive.at" class="hover:text-[var(--color-gold-light)]">accounting@salesdrive.at</a></li>
-          <li>+43 (0) 676 7951018</li>
-        </ul>
-      </div>
-
-      <div>
-        <h4 class="text-xs uppercase tracking-[0.16em]" style="color: var(--color-text-tertiary);">Geschäftszeiten</h4>
-        <ul class="mt-3 space-y-1.5 text-sm" style="color: var(--color-text-secondary);">
-          <li>Mo – Fr</li>
-          <li>09:00 – 17:00 CET</li>
-          <li class="text-xs" style="color: var(--color-text-tertiary);">Antwort innerhalb 24h</li>
-        </ul>
+      <div class="flex flex-col items-start gap-1 text-sm sm:items-end">
+        <a href="mailto:office@salesagent.at" class="font-mono transition-colors hover:text-[var(--color-gold-bright)]" style="color: var(--color-text-secondary);">office@salesagent.at</a>
+        <span class="text-xs" style="color: var(--color-text-tertiary);">Mo – Fr · 09:00 – 17:00 CET</span>
       </div>
     </div>
 
-    <div class="mt-10 flex flex-col items-start justify-between gap-3 border-t pt-6 text-xs sm:flex-row sm:items-center" style="border-color: var(--color-border-subtle); color: var(--color-text-tertiary);">
-      <div>© {new Date().getFullYear()} SalesDrive GmbH · Wien · Geschäftsführer: Alexander Kiraly</div>
+    <div class="mt-8 flex flex-col items-start justify-between gap-3 border-t pt-5 text-xs sm:flex-row sm:items-center" style="border-color: var(--color-border-subtle); color: var(--color-text-tertiary);">
+      <div>© {new Date().getFullYear()} SalesAgent — alle Rechte vorbehalten.</div>
       <div class="flex items-center gap-5">
-        <a href="https://salesdrive.at/impressum" class="hover:text-[var(--color-gold-light)]" rel="noopener">Impressum</a>
-        <a href="https://salesdrive.at/datenschutz" class="hover:text-[var(--color-gold-light)]" rel="noopener">Datenschutz</a>
+        <a href="https://salesagent.at/impressum" class="transition-colors hover:text-[var(--color-gold-bright)]" rel="noopener">Impressum</a>
+        <a href="https://salesagent.at/datenschutz" class="transition-colors hover:text-[var(--color-gold-bright)]" rel="noopener">Datenschutz</a>
       </div>
     </div>
   </div>
 </footer>
+
+<style>
+  :root[data-theme="light"] .logo-img {
+    filter: invert(1) hue-rotate(180deg) brightness(0.85);
+  }
+</style>

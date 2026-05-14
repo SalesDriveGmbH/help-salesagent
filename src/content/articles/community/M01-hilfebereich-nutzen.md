@@ -8,7 +8,7 @@ related: ["M02"]
 last_updated: "2026-05-14"
 faq_priority: 20
 tldr: "Suche, Kategorien, AI-Chat (Sandy), Eskalation an Support — in dieser Reihenfolge."
-escalate_to: "office@salesdrive.at"
+escalate_to: "office@salesagent.at"
 escalate_tag: "allgemein"
 ---
 

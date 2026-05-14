@@ -8,7 +8,7 @@ related: ["T03"]
 last_updated: "2026-05-14"
 faq_priority: 57
 tldr: "Workaround: Intro/Outro und Smalltalk aus dem Transkript entfernen, Fokus auf qualifizierungsrelevante Passagen."
-escalate_to: "office@salesdrive.at"
+escalate_to: "office@salesagent.at"
 escalate_tag: "technik"
 ---
 

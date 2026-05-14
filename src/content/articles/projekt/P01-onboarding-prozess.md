@@ -8,7 +8,7 @@ related: ["V01", "V03", "P03"]
 last_updated: "2026-05-14"
 faq_priority: 11
 tldr: "Nach Freigabe innerhalb von 4 Wochen Projektangebot. Verbindlicher 7-Schritte-Prozess."
-escalate_to: "office@salesdrive.at"
+escalate_to: "office@salesagent.at"
 escalate_tag: "projekt"
 ---
 

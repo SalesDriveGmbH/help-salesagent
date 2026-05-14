@@ -8,7 +8,7 @@ related: ["V03"]
 last_updated: "2026-05-14"
 faq_priority: 42
 tldr: "Deutsche Sales Agents fakturieren im Reverse-Charge-Verfahren an die ATU79430518."
-escalate_to: "office@salesdrive.at"
+escalate_to: "office@salesagent.at"
 escalate_tag: "vertrag"
 ---
 

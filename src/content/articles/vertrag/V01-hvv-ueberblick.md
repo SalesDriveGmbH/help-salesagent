@@ -8,7 +8,7 @@ related: ["V03", "V06", "A03"]
 last_updated: "2026-05-14"
 faq_priority: 13
 tldr: "Wichtigste Eckpunkte des Handelsvertretervertrags im Überblick."
-escalate_to: "office@salesdrive.at"
+escalate_to: "office@salesagent.at"
 escalate_tag: "vertrag"
 ---
 
@@ -30,4 +30,4 @@ Der HVV wird über **PandaDoc** elektronisch unterzeichnet.
 | Gerichtsstand | Wien |
 | Anwendbares Recht | Österreichisch |
 
-**Wo findest du deinen unterschriebenen HVV?** In deinem PandaDoc-Account oder im Dashboard unter [`app.salesdrive.at`](https://app.salesdrive.at) → "Verträge". Falls nicht auffindbar: kurz an `office@salesdrive.at`.
+**Wo findest du deinen unterschriebenen HVV?** In deinem PandaDoc-Account oder im Dashboard unter [`app.salesdrive.at`](https://app.salesdrive.at) → "Verträge". Falls nicht auffindbar: kurz an `office@salesagent.at`.

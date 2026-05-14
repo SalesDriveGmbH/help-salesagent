@@ -211,7 +211,7 @@ function ChatWidget() {
       )}
 
       {open && (
-        <div className="sandy-panel fixed bottom-0 right-0 z-50 flex h-[100dvh] w-full flex-col sm:bottom-6 sm:right-6 sm:h-[640px] sm:max-h-[80dvh] sm:w-[460px] sm:rounded-2xl">
+        <div className="sandy-panel fixed bottom-0 right-0 z-50 flex h-[100dvh] w-full flex-col sm:bottom-6 sm:right-6 sm:h-[640px] sm:max-h-[80dvh] sm:w-[460px] sm:rounded-lg">
           <header
             className="flex items-center justify-between gap-3 px-5 py-4"
             style={{ borderBottom: "1px solid var(--color-border-subtle)" }}
@@ -253,7 +253,7 @@ function ChatWidget() {
           <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4">
             {messages.map((m, i) => (
               <div key={i} className={`mb-4 flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`sandy-bubble max-w-[85%] rounded-xl px-3.5 py-2.5 text-sm ${m.role === "user" ? "sandy-bubble--user" : "sandy-bubble--assistant"}`}>
+                <div className={`sandy-bubble max-w-[85%] rounded-md px-3.5 py-2.5 text-sm ${m.role === "user" ? "sandy-bubble--user" : "sandy-bubble--assistant"}`}>
                   {m.role === "assistant" ? (
                     <div className="sandy-md" dangerouslySetInnerHTML={{ __html: renderMarkdown(m.content || "…") }} />
                   ) : (

@@ -84,7 +84,7 @@ export default function EscalationModal({ chatHistory, onClose }: Props) {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         if (res.status === 429) {
-          throw new Error("Du hast heute schon ein Ticket eröffnet. Probier es morgen erneut oder schreib an office@salesdrive.at.");
+          throw new Error("Du hast heute schon ein Ticket eröffnet. Probier es morgen erneut oder schreib an office@salesagent.at.");
         }
         throw new Error(data.error ?? `HTTP ${res.status}`);
       }
@@ -98,7 +98,7 @@ export default function EscalationModal({ chatHistory, onClose }: Props) {
 
   return (
     <div className="escalation-backdrop fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="escalation-panel w-full max-w-md rounded-2xl p-6">
+      <div className="escalation-panel w-full max-w-md rounded-lg p-6">
         {done ? (
           <div>
             <h3 className="h-display text-2xl" style={{ color: "var(--color-text-primary)" }}>Danke!</h3>

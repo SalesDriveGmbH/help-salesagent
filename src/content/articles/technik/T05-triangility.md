@@ -8,10 +8,10 @@ related: []
 last_updated: "2026-05-14"
 faq_priority: 58
 tldr: "Funktion und Zugang zu Triangility werden derzeit dokumentiert."
-escalate_to: "office@salesdrive.at"
+escalate_to: "office@salesagent.at"
 escalate_tag: "technik"
 ---
 
 Eine vollständige Erklärung zu **Triangility** (Funktionsumfang, Eintragung neuer Agents, Lead-Verwaltung, Eskalation bei fehlenden Leads) wird gerade aufbereitet.
 
-**Bei Fragen:** im Chat anfragen oder an `office@salesdrive.at` schreiben.
+**Bei Fragen:** im Chat anfragen oder an `office@salesagent.at` schreiben.
