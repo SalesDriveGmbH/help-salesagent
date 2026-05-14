@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import Anthropic from "@anthropic-ai/sdk";
-import { rateLimit } from "../../lib/rate-limit";
+import { kv } from "@vercel/kv";
 import { verifyTurnstile } from "../../lib/turnstile";
 import { createIntercomConversation } from "../../lib/intercom";
 import { CLAUDE_MODEL } from "../../lib/claude";
@@ -17,6 +17,9 @@ const ALLOWED: IntercomCategory[] = [
   "community",
   "sonstiges",
 ];
+
+const RATE_WINDOW_SECONDS = 60 * 60 * 24; // 24h
+const RATE_MAX = 1; // max 1 erfolgreiche Eskalation pro 24h pro Email
 
 export const POST: APIRoute = async ({ request, clientAddress }) => {
   let body: any;
@@ -45,12 +48,15 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     return new Response(JSON.stringify({ error: "turnstile_failed" }), { status: 403 });
   }
 
-  const limited = await rateLimit({
-    key: `escalate:${String(email).toLowerCase()}`,
-    max: 1,
-    window: 60 * 60 * 24,
-  });
-  if (limited) {
+  // Rate-Limit nur prüfen — NICHT inkrementieren. Inkrement erfolgt erst nach Erfolg.
+  const rateKey = `escalate:${String(email).toLowerCase()}`;
+  let currentCount = 0;
+  try {
+    currentCount = ((await kv.get(rateKey)) as number) ?? 0;
+  } catch (e) {
+    console.warn("rate check failed:", e);
+  }
+  if (currentCount >= RATE_MAX) {
     return new Response(JSON.stringify({ error: "rate_limited" }), { status: 429 });
   }
 
@@ -101,6 +107,14 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   } catch (e: any) {
     console.error("Intercom escalation failed:", e);
     return new Response(JSON.stringify({ error: "intercom_failed", detail: e?.message }), { status: 502 });
+  }
+
+  // Erst nach erfolgreichem Intercom-Call den Rate-Limit-Counter erhöhen
+  try {
+    const newCount = await kv.incr(rateKey);
+    if (newCount === 1) await kv.expire(rateKey, RATE_WINDOW_SECONDS);
+  } catch (e) {
+    console.warn("rate increment failed:", e);
   }
 
   return new Response(JSON.stringify({ ok: true, category }), {
