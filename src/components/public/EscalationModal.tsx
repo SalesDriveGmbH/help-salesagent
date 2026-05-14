@@ -22,7 +22,6 @@ const SITE_KEY =
 export default function EscalationModal({ chatHistory, onClose }: Props) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
   const [token, setToken] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -83,7 +82,6 @@ export default function EscalationModal({ chatHistory, onClose }: Props) {
         body: JSON.stringify({
           name,
           email,
-          phone: phone || undefined,
           message: message.trim() || undefined,
           turnstileToken: token,
           chatHistory,
@@ -160,11 +158,6 @@ export default function EscalationModal({ chatHistory, onClose }: Props) {
                 <label className="mb-1 block text-xs" style={{ color: "var(--color-text-tertiary)" }}>Email *</label>
                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input" required />
               </div>
-            </div>
-
-            <div>
-              <label className="mb-1 block text-xs" style={{ color: "var(--color-text-tertiary)" }}>Telefon (optional)</label>
-              <input value={phone} onChange={(e) => setPhone(e.target.value)} className="input" />
             </div>
 
             {SITE_KEY && <div ref={turnstileRef} />}
