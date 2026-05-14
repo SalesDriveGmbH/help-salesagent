@@ -1,6 +1,6 @@
 # SalesAgent Hilfebereich
 
-Öffentlicher Hilfebereich für die SalesAgents der SalesDrive GmbH unter `help.salesdrive.at` — gebaut mit Astro 5, Tailwind 4, Claude Sonnet 4.6 (RAG-Chat), Intercom-Eskalation und einem Magic-Link-gesicherten Admin-Bereich zur dynamischen KB-Pflege.
+Öffentlicher Hilfebereich für die SalesAgents der SalesDrive GmbH unter `help.salesagent.at` — gebaut mit Astro 5, Tailwind 4, Claude Sonnet 4.6 (RAG-Chat), Intercom-Eskalation und einem Magic-Link-gesicherten Admin-Bereich zur dynamischen KB-Pflege.
 
 ---
 
@@ -37,7 +37,7 @@ Lokaler Dev-Server: `http://localhost:4321`.
 ## Deployment
 
 - Push auf `main` → Vercel deployt automatisch (~30 Sekunden).
-- DNS: `CNAME help.salesdrive.at → cname.vercel-dns.com`.
+- DNS: `CNAME help.salesagent.at → cname.vercel-dns.com`.
 
 ---
 
@@ -56,7 +56,7 @@ Keine lokale Git-Bedienung nötig für KB-Pflege.
 - [ ] Intercom Access Token + Admin-ID einrichten → Env-Vars
 - [ ] Intercom Tag-IDs in `src/lib/intercom-tags.ts` eintragen (für die 7 Kategorie-Tags)
 - [ ] Cloudflare Turnstile Site-/Secret-Key generieren → Env-Vars
-- [ ] Resend-Account, Domain `help.salesdrive.at` verifizieren (SPF + DKIM), API-Key generieren → Env-Vars
+- [ ] Resend-Account, Domain `help.salesagent.at` verifizieren (SPF + DKIM), API-Key generieren → Env-Vars
 - [ ] GitHub PAT mit Scope `repo` generieren → `GITHUB_TOKEN` Env-Var
 - [ ] Allow-Liste `ADMIN_ALLOWED_EMAILS` setzen (komma-getrennt, ohne Leerzeichen)
 - [ ] `SESSION_SECRET=$(openssl rand -base64 32)` setzen
@@ -68,7 +68,7 @@ Keine lokale Git-Bedienung nötig für KB-Pflege.
 ## Resend-Setup (Magic-Link Versand)
 
 1. Account auf [resend.com](https://resend.com) anlegen.
-2. Domain `help.salesdrive.at` verifizieren.
+2. Domain `help.salesagent.at` verifizieren.
 3. Zwei DNS-Records (SPF + DKIM) hinterlegen, Resend zeigt die exakten Werte an.
 4. API-Key generieren → `RESEND_API_KEY` in Vercel.
 5. Test-Mail aus dem Resend-Dashboard verschicken, um die Verifikation zu bestätigen.

@@ -3,4 +3,4 @@ Allow: /
 Disallow: /api/
 Disallow: /admin/
 
-Sitemap: https://help.salesdrive.at/sitemap-index.xml
+Sitemap: https://help.salesagent.at/sitemap-index.xml

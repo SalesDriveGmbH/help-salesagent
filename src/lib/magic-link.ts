@@ -26,8 +26,8 @@ export async function consumeMagicToken(token: string): Promise<string | null> {
 
 export async function sendMagicLinkEmail(email: string, token: string) {
   const apiKey = import.meta.env.RESEND_API_KEY;
-  const from = import.meta.env.RESEND_FROM_EMAIL ?? "noreply@help.salesdrive.at";
-  const site = import.meta.env.PUBLIC_SITE_URL ?? "https://help.salesdrive.at";
+  const from = import.meta.env.RESEND_FROM_EMAIL ?? "noreply@help.salesagent.at";
+  const site = import.meta.env.PUBLIC_SITE_URL ?? "https://help.salesagent.at";
 
   if (!apiKey) {
     console.warn("RESEND_API_KEY nicht gesetzt — Magic-Link wird in der Console geloggt.");

@@ -5,7 +5,7 @@ import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  site: "https://help.salesdrive.at",
+  site: "https://help.salesagent.at",
   output: "server",
   adapter: vercel(),
   integrations: [react(), sitemap()],
