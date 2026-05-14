@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && (pagefind --site dist/client || pagefind --site dist || echo 'pagefind: skipped — no static dir found')",
+    "build": "astro build && (pagefind --site .vercel/output/static || pagefind --site dist/client || pagefind --site dist || echo 'pagefind: skipped — no static dir found')",
     "preview": "astro preview",
     "astro": "astro"
   },
