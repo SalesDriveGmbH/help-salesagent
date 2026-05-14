@@ -158,8 +158,21 @@ function CommandPalette() {
       const next = [item.id, ...loadRecent().filter((id) => id !== item.id)].slice(0, MAX_RECENT);
       localStorage.setItem(RECENT_KEY, JSON.stringify(next));
     } catch {}
+    // Track search → click
+    if (query.trim()) {
+      navigator.sendBeacon?.("/api/track", JSON.stringify({ event: "search", value: query.trim() }));
+    }
     window.location.assign(item.url);
   }
+
+  // Track "no result"-Suchen mit Debounce
+  useEffect(() => {
+    if (!query.trim() || results.length > 0 || !index) return;
+    const t = setTimeout(() => {
+      navigator.sendBeacon?.("/api/track", JSON.stringify({ event: "search-no-result", value: query.trim() }));
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [query, results.length, index]);
 
   function onKeyDown(e: React.KeyboardEvent) {
     const max = results.length - 1;

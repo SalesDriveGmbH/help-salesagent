@@ -260,9 +260,13 @@ const readingMinutes = Math.max(1, Math.round(wordCount / 200));
       sync();
       btn.addEventListener("click", () => {
         const arr = getBookmarks();
-        const next = arr.includes(id) ? arr.filter((x) => x !== id) : [id, ...arr].slice(0, 50);
+        const wasActive = arr.includes(id);
+        const next = wasActive ? arr.filter((x) => x !== id) : [id, ...arr].slice(0, 50);
         setBookmarks(next);
         sync();
+        if (!wasActive) {
+          navigator.sendBeacon?.("/api/track", JSON.stringify({ event: "bookmark", value: id }));
+        }
       });
     });
 
@@ -307,6 +311,8 @@ const readingMinutes = Math.max(1, Math.round(wordCount / 200));
         const prev = JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]") as string[];
         const next = [ID, ...prev.filter((x) => x !== ID)].slice(0, 5);
         localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+        // Server-side tracking (für /admin/insights)
+        navigator.sendBeacon?.("/api/track", JSON.stringify({ event: "article-view", value: ID }));
       }
     } catch {}
 

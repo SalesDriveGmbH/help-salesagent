@@ -92,7 +92,10 @@ function ChatWidget() {
   }, [messages, open]);
 
   useEffect(() => {
-    const handler = () => setOpen(true);
+    const handler = () => {
+      setOpen(true);
+      navigator.sendBeacon?.("/api/track", JSON.stringify({ event: "chat-open" }));
+    };
     window.addEventListener("sandy:open", handler);
     return () => window.removeEventListener("sandy:open", handler);
   }, []);

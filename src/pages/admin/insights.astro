@@ -1,0 +1,231 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import { loadInsights } from "../../lib/insights";
+import { getCollection } from "astro:content";
+
+export const prerender = false;
+
+const insights = await loadInsights();
+
+// ID-zu-Title Map für hübschere Anzeige
+const articles = await getCollection("articles");
+const titleById = new Map<string, { title: string; slug: string; category: string }>();
+for (const a of articles) {
+  titleById.set(a.data.id, {
+    title: a.data.title,
+    slug: a.id.replace(/^[^/]+\//, ""),
+    category: a.data.category,
+  });
+}
+function renderArticle(id: string) {
+  const a = titleById.get(id);
+  if (!a) return { label: id, href: null as string | null };
+  return { label: a.title, href: `/artikel/${a.category}/${a.slug}` };
+}
+
+const CATEGORY_LABEL: Record<string, string> = {
+  abrechnung: "Abrechnung",
+  technik: "Technik",
+  projekt: "Projekte",
+  vertrag: "Vertrag",
+  ausbildung: "Ausbildung",
+  community: "Community",
+  sonstiges: "Sonstiges",
+};
+---
+
+<AdminLayout title="Insights">
+  <section class="mx-auto max-w-7xl px-6 pt-8 pb-24">
+    <header class="mb-8">
+      <p class="text-xs uppercase tracking-[0.18em]" style="color: var(--color-gold-dim);">Admin · Insights</p>
+      <h1 class="h-display mt-2 text-3xl" style="color: var(--color-text-primary);">Was deine SalesAgents wirklich brauchen.</h1>
+      <p class="mt-2 max-w-2xl text-sm" style="color: var(--color-text-secondary);">
+        Live-Daten aus Suchanfragen, Artikel-Views, Bookmarks und Eskalationen. Hilft dir, die Wissensdatenbank dort zu schärfen, wo es weh tut.
+      </p>
+    </header>
+
+    {/* AI-Summary */}
+    <div id="ai-suggestion" class="mb-8 rounded-md border p-5" style="border-color: var(--color-border-default); background: linear-gradient(135deg, rgba(191, 163, 124, 0.08) 0%, rgba(191, 163, 124, 0.02) 100%);">
+      <div class="flex items-start gap-3">
+        <div class="flex h-8 w-8 items-center justify-center rounded-md" style="background: rgba(191, 163, 124, 0.15); border: 1px solid var(--color-border-default);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-gold-bright);">
+            <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z" />
+          </svg>
+        </div>
+        <div class="flex-1">
+          <div class="text-xs uppercase tracking-[0.16em]" style="color: var(--color-text-tertiary);">Sandys Empfehlung</div>
+          <div id="ai-content" class="mt-2 text-sm" style="color: var(--color-text-secondary); line-height: 1.6;">
+            <span style="color: var(--color-text-tertiary);">Sandy analysiert die Daten …</span>
+          </div>
+        </div>
+        <button id="ai-refresh" class="btn btn-ghost" type="button" title="Neu generieren">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v6h-6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    {/* Daily-Counter */}
+    <div class="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-5">
+      {[
+        { label: "Suchen heute",       value: insights.daily.search,     hue: "var(--color-gold-primary)" },
+        { label: "Artikel-Views",      value: insights.daily.view,       hue: "var(--color-gold-light)" },
+        { label: "Bookmarks",          value: insights.daily.bookmark,   hue: "var(--color-gold-light)" },
+        { label: "Chat geöffnet",      value: insights.daily.chat,       hue: "var(--color-gold-light)" },
+        { label: "Eskalationen",       value: insights.daily.escalation, hue: "var(--color-gold-light)" },
+      ].map((m) => (
+        <div class="card p-5">
+          <div class="text-[10px] uppercase tracking-[0.16em]" style="color: var(--color-text-tertiary);">{m.label}</div>
+          <div class="mt-2 font-display text-3xl font-semibold" style={`color: ${m.hue}; letter-spacing: -0.04em;`}>{m.value}</div>
+        </div>
+      ))}
+    </div>
+
+    {/* Stat-Grid */}
+    <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+      {/* Top Suchen */}
+      <div class="card p-5">
+        <div class="flex items-baseline justify-between">
+          <h2 class="text-sm font-semibold" style="color: var(--color-text-primary);">Häufigste Suchanfragen</h2>
+          <span class="text-xs" style="color: var(--color-text-tertiary);">Top 10</span>
+        </div>
+        {insights.topSearches.length === 0 ? (
+          <p class="mt-4 text-sm" style="color: var(--color-text-tertiary);">Noch keine Daten — sobald jemand sucht, erscheint's hier.</p>
+        ) : (
+          <ol class="mt-4 space-y-2 text-sm">
+            {insights.topSearches.map((s, i) => (
+              <li class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                  <span class="font-mono text-xs" style="color: var(--color-text-tertiary); min-width: 18px;">{i + 1}.</span>
+                  <span class="truncate" style="color: var(--color-text-primary);">{s.value}</span>
+                </div>
+                <span class="font-mono text-xs" style="color: var(--color-gold-light);">{s.count}</span>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+
+      {/* Suchen ohne Treffer */}
+      <div class="card p-5">
+        <div class="flex items-baseline justify-between">
+          <h2 class="text-sm font-semibold" style="color: var(--color-text-primary);">Suchen ohne Treffer</h2>
+          <span class="text-xs" style="color: var(--color-text-tertiary);">→ KB-Lücken</span>
+        </div>
+        {insights.noResultSearches.length === 0 ? (
+          <p class="mt-4 text-sm" style="color: var(--color-text-tertiary);">Keine — deine KB deckt alles ab, was bisher gesucht wurde.</p>
+        ) : (
+          <ol class="mt-4 space-y-2 text-sm">
+            {insights.noResultSearches.map((s, i) => (
+              <li class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                  <span class="font-mono text-xs" style="color: var(--color-text-tertiary); min-width: 18px;">{i + 1}.</span>
+                  <span class="truncate" style="color: var(--color-text-primary);">{s.value}</span>
+                </div>
+                <span class="font-mono text-xs" style="color: #E3A66A;">{s.count}</span>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+
+      {/* Top Artikel-Views */}
+      <div class="card p-5">
+        <div class="flex items-baseline justify-between">
+          <h2 class="text-sm font-semibold" style="color: var(--color-text-primary);">Meist gelesene Artikel</h2>
+          <span class="text-xs" style="color: var(--color-text-tertiary);">Top 10</span>
+        </div>
+        {insights.topViews.length === 0 ? (
+          <p class="mt-4 text-sm" style="color: var(--color-text-tertiary);">Noch keine Daten.</p>
+        ) : (
+          <ol class="mt-4 space-y-2 text-sm">
+            {insights.topViews.map((s, i) => {
+              const a = renderArticle(s.value);
+              return (
+                <li class="flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <span class="font-mono text-xs" style="color: var(--color-text-tertiary); min-width: 18px;">{i + 1}.</span>
+                    <span class="font-mono text-[11px]" style="color: var(--color-text-tertiary);">{s.value}</span>
+                    {a.href
+                      ? <a href={a.href} class="truncate hover:text-[var(--color-gold-bright)]" style="color: var(--color-text-primary);">{a.label}</a>
+                      : <span class="truncate" style="color: var(--color-text-primary);">{a.label}</span>}
+                  </div>
+                  <span class="font-mono text-xs" style="color: var(--color-gold-light);">{s.count}</span>
+                </li>
+              );
+            })}
+          </ol>
+        )}
+      </div>
+
+      {/* Top Bookmarks */}
+      <div class="card p-5">
+        <div class="flex items-baseline justify-between">
+          <h2 class="text-sm font-semibold" style="color: var(--color-text-primary);">Meist gebookmarkte Artikel</h2>
+          <span class="text-xs" style="color: var(--color-text-tertiary);">Top 10</span>
+        </div>
+        {insights.topBookmarks.length === 0 ? (
+          <p class="mt-4 text-sm" style="color: var(--color-text-tertiary);">Noch keine Bookmarks.</p>
+        ) : (
+          <ol class="mt-4 space-y-2 text-sm">
+            {insights.topBookmarks.map((s, i) => {
+              const a = renderArticle(s.value);
+              return (
+                <li class="flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <span class="font-mono text-xs" style="color: var(--color-text-tertiary); min-width: 18px;">{i + 1}.</span>
+                    <span class="font-mono text-[11px]" style="color: var(--color-text-tertiary);">{s.value}</span>
+                    {a.href
+                      ? <a href={a.href} class="truncate hover:text-[var(--color-gold-bright)]" style="color: var(--color-text-primary);">{a.label}</a>
+                      : <span class="truncate" style="color: var(--color-text-primary);">{a.label}</span>}
+                  </div>
+                  <span class="font-mono text-xs" style="color: var(--color-gold-light);">{s.count}</span>
+                </li>
+              );
+            })}
+          </ol>
+        )}
+      </div>
+
+      {/* Eskalationen */}
+      <div class="card p-5 lg:col-span-2">
+        <div class="flex items-baseline justify-between">
+          <h2 class="text-sm font-semibold" style="color: var(--color-text-primary);">Eskalationen nach Kategorie</h2>
+          <span class="text-xs" style="color: var(--color-text-tertiary);">all-time</span>
+        </div>
+        {insights.escalationsByCategory.length === 0 ? (
+          <p class="mt-4 text-sm" style="color: var(--color-text-tertiary);">Noch keine Eskalationen.</p>
+        ) : (
+          <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+            {insights.escalationsByCategory.map((e) => (
+              <div class="rounded-md border p-3" style="border-color: var(--color-border-subtle);">
+                <div class="text-[10px] uppercase tracking-[0.14em]" style="color: var(--color-text-tertiary);">{CATEGORY_LABEL[e.value] ?? e.value}</div>
+                <div class="mt-1 font-mono text-lg" style="color: var(--color-gold-light);">{e.count}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // AI-Summary laden
+    async function loadAiSummary(force = false) {
+      const target = document.getElementById("ai-content");
+      if (!target) return;
+      target.innerHTML = `<span style="color: var(--color-text-tertiary);">Sandy analysiert die Daten …</span>`;
+      try {
+        const res = await fetch(`/api/admin/insights-summary${force ? "?force=1" : ""}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        target.textContent = data.summary || "Noch zu wenig Daten für eine Empfehlung.";
+      } catch (e) {
+        target.innerHTML = `<span style="color: #E3A66A;">Konnte Empfehlung nicht laden.</span>`;
+      }
+    }
+    loadAiSummary();
+    document.getElementById("ai-refresh")?.addEventListener("click", () => loadAiSummary(true));
+  </script>
+</AdminLayout>

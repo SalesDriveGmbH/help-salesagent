@@ -4,6 +4,7 @@ import { kv } from "@vercel/kv";
 import { verifyTurnstile } from "../../lib/turnstile";
 import { createIntercomConversation } from "../../lib/intercom";
 import { CLAUDE_MODEL } from "../../lib/claude";
+import { trackEvent } from "../../lib/insights";
 import type { IntercomCategory } from "../../lib/intercom-tags";
 
 export const prerender = false;
@@ -116,6 +117,9 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   } catch (e) {
     console.warn("rate increment failed:", e);
   }
+
+  // Insights-Tracking (Kategorie)
+  trackEvent("escalation", category).catch(() => {});
 
   return new Response(JSON.stringify({ ok: true, category }), {
     status: 200,

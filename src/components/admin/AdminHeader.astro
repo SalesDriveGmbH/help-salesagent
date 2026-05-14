@@ -11,8 +11,10 @@ const adminEmail = Astro.locals.adminEmail ?? "";
     </a>
 
     <nav class="flex items-center gap-3 text-sm sm:gap-5">
+      <a href="/admin" class="hidden md:inline transition-colors hover:text-[var(--color-gold-bright)]" style="color: var(--color-text-secondary);">Dashboard</a>
+      <a href="/admin/insights" class="hidden md:inline transition-colors hover:text-[var(--color-gold-bright)]" style="color: var(--color-text-secondary);">Insights</a>
       {adminEmail && (
-        <span class="hidden md:inline text-xs" style="color: var(--color-text-tertiary);">{adminEmail}</span>
+        <span class="hidden lg:inline text-xs" style="color: var(--color-text-tertiary);">{adminEmail}</span>
       )}
       <a href="/" class="hidden md:inline transition-colors hover:text-[var(--color-gold-bright)]" style="color: var(--color-text-secondary);">Public ↗</a>
       <ThemeToggle />
