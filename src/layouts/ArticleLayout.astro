@@ -25,6 +25,19 @@ const h2Headings = headings.filter((h) => h.depth === 2);
 // Lesezeit aus Body: ~ 200 WPM Deutsch
 const wordCount = ((entry.body ?? "").match(/\b\w+\b/g) ?? []).length;
 const readingMinutes = Math.max(1, Math.round(wordCount / 200));
+
+// "Was du als nächstes lesen solltest" — 3 Vorschläge:
+// 1. Bevorzugt Artikel mit hoher Priorität in derselben Kategorie
+// 2. Die noch nicht in "related" sind
+// 3. Status complete
+const relatedIds = new Set([entry.data.id, ...(data.related ?? [])]);
+const nextUp = all
+  .filter((a) => a.data.status === "complete" && !relatedIds.has(a.data.id) && a.data.category === data.category)
+  .sort((a, b) => (a.data.faq_priority ?? 50) - (b.data.faq_priority ?? 50))
+  .slice(0, 3);
+function nextUpSlug(e: CollectionEntry<"articles">) {
+  return e.id.replace(/^[^/]+\//, "");
+}
 ---
 
 <BaseLayout title={data.title} description={data.tldr ?? data.title}>
@@ -129,6 +142,28 @@ const readingMinutes = Math.max(1, Math.round(wordCount / 200));
                   </a>
                 );
               })}
+            </div>
+          </section>
+        )}
+
+        {nextUp.length > 0 && (
+          <section class="mt-14">
+            <h2 class="h-display text-xl" style="color: var(--color-text-primary); letter-spacing: -0.03em;">
+              Als nächstes
+            </h2>
+            <p class="mt-2 text-sm" style="color: var(--color-text-secondary);">
+              Auch in <span style="color: var(--color-text-primary);">{category?.title}</span> — könnte dich auch interessieren:
+            </p>
+            <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {nextUp.map((r) => (
+                <a href={`/artikel/${r.data.category}/${nextUpSlug(r)}`} class="card group block p-4">
+                  <div class="text-xs font-mono" style="color: var(--color-text-tertiary);">{r.data.id}</div>
+                  <div class="mt-1 text-sm font-medium transition-colors group-hover:text-[var(--color-gold-bright)]" style="color: var(--color-text-primary);">{r.data.title}</div>
+                  {r.data.tldr && (
+                    <div class="mt-1 line-clamp-2 text-xs" style="color: var(--color-text-secondary);">{r.data.tldr}</div>
+                  )}
+                </a>
+              ))}
             </div>
           </section>
         )}

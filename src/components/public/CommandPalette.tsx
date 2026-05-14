@@ -14,6 +14,99 @@ interface IndexItem {
   body: string;
 }
 
+interface QuickAction {
+  id: string;
+  title: string;
+  hint: string;
+  keywords: string[];
+  run: () => void;
+}
+
+function buildQuickActions(): QuickAction[] {
+  return [
+    {
+      id: "act:chat",
+      title: "Sandy fragen",
+      hint: "Chat öffnen",
+      keywords: ["chat", "sandy", "frage", "ai", "ki", "support"],
+      run: () => window.dispatchEvent(new CustomEvent("sandy:open")),
+    },
+    {
+      id: "act:bookmarks",
+      title: "Lesezeichen öffnen",
+      hint: "Deine gemerkten Artikel",
+      keywords: ["lesezeichen", "bookmarks", "gemerkt", "merken", "saved"],
+      run: () => window.location.assign("/lesezeichen"),
+    },
+    {
+      id: "act:glossar",
+      title: "Glossar öffnen",
+      hint: "HVV, PNV, CRM etc.",
+      keywords: ["glossar", "begriffe", "definition", "abkürzung", "hvv", "pnv"],
+      run: () => window.location.assign("/glossar"),
+    },
+    {
+      id: "act:kontakt",
+      title: "Kontakt",
+      hint: "Email + Telefon",
+      keywords: ["kontakt", "email", "office"],
+      run: () => window.location.assign("/kontakt"),
+    },
+    {
+      id: "act:home",
+      title: "Zur Startseite",
+      hint: "Hilfe & Antworten",
+      keywords: ["home", "start", "startseite"],
+      run: () => window.location.assign("/"),
+    },
+    {
+      id: "act:theme-light",
+      title: "Theme: Hell",
+      hint: "Light-Mode aktivieren",
+      keywords: ["hell", "light", "theme", "tag", "weiß"],
+      run: () => {
+        try { localStorage.setItem("sd-theme-mode", "light"); } catch {}
+        document.documentElement.setAttribute("data-theme", "light");
+      },
+    },
+    {
+      id: "act:theme-dark",
+      title: "Theme: Dunkel",
+      hint: "Dark-Mode aktivieren",
+      keywords: ["dunkel", "dark", "theme", "nacht", "schwarz"],
+      run: () => {
+        try { localStorage.setItem("sd-theme-mode", "dark"); } catch {}
+        document.documentElement.setAttribute("data-theme", "dark");
+      },
+    },
+    {
+      id: "act:theme-system",
+      title: "Theme: System",
+      hint: "OS-Setting folgen",
+      keywords: ["system", "auto", "theme"],
+      run: () => {
+        try { localStorage.setItem("sd-theme-mode", "system"); } catch {}
+        const light = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+        document.documentElement.setAttribute("data-theme", light ? "light" : "dark");
+      },
+    },
+  ];
+}
+
+function scoreAction(a: QuickAction, q: string): number {
+  if (!q) return 0;
+  const nq = q.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "");
+  const t = a.title.toLowerCase();
+  let s = 0;
+  if (t.includes(nq)) s += 80;
+  if (t.startsWith(nq)) s += 40;
+  for (const k of a.keywords) {
+    if (k.includes(nq)) s += 30;
+    if (k.startsWith(nq)) s += 20;
+  }
+  return s;
+}
+
 const CATEGORY_LABEL: Record<string, string> = {
   abrechnung: "Abrechnung",
   technik: "Technik",
@@ -130,10 +223,14 @@ function CommandPalette() {
     }
   }, [open]);
 
-  const results = useMemo(() => {
+  const actions = useMemo(() => buildQuickActions(), []);
+
+  type Row = { kind: "article"; item: IndexItem; section: string }
+            | { kind: "action"; action: QuickAction; section: string };
+
+  const results: Row[] = useMemo(() => {
     if (!index) return [];
     if (!query.trim()) {
-      // Empty state: zeige Recents + Top-Prio
       const recents = recent
         .map((id) => index.find((i) => i.id === id))
         .filter(Boolean) as IndexItem[];
@@ -141,24 +238,38 @@ function CommandPalette() {
         .filter((i) => i.priority <= 21 && !recent.includes(i.id))
         .sort((a, b) => a.priority - b.priority)
         .slice(0, 6);
+      const featuredActions = actions.slice(0, 3);
       return [
-        ...recents.map((i) => ({ item: i, section: "Zuletzt gelesen" })),
-        ...top.map((i) => ({ item: i, section: "Häufig gesucht" })),
+        ...recents.map((i) => ({ kind: "article" as const, item: i, section: "Zuletzt gelesen" })),
+        ...top.map((i) => ({ kind: "article" as const, item: i, section: "Häufig gesucht" })),
+        ...featuredActions.map((a) => ({ kind: "action" as const, action: a, section: "Aktionen" })),
       ];
     }
-    const scored = index.map((i) => ({ item: i, _score: score(i, query) }))
+    const articleScored = index.map((i) => ({ item: i, _score: score(i, query) }))
       .filter((x) => x._score > 0)
       .sort((a, b) => b._score - a._score)
-      .slice(0, 10);
-    return scored.map((s) => ({ item: s.item, section: "Treffer" }));
-  }, [index, query, recent]);
+      .slice(0, 8);
+    const actionScored = actions.map((a) => ({ action: a, _score: scoreAction(a, query) }))
+      .filter((x) => x._score > 0)
+      .sort((a, b) => b._score - a._score)
+      .slice(0, 4);
+    return [
+      ...articleScored.map((s) => ({ kind: "article" as const, item: s.item, section: "Treffer" })),
+      ...actionScored.map((s) => ({ kind: "action" as const, action: s.action, section: "Aktionen" })),
+    ];
+  }, [index, query, recent, actions]);
 
-  function activate(item: IndexItem) {
+  function activate(row: Row) {
+    if (row.kind === "action") {
+      setOpen(false);
+      setTimeout(() => row.action.run(), 80);
+      return;
+    }
+    const item = row.item;
     try {
       const next = [item.id, ...loadRecent().filter((id) => id !== item.id)].slice(0, MAX_RECENT);
       localStorage.setItem(RECENT_KEY, JSON.stringify(next));
     } catch {}
-    // Track search → click
     if (query.trim()) {
       navigator.sendBeacon?.("/api/track", JSON.stringify({ event: "search", value: query.trim() }));
     }
@@ -185,7 +296,7 @@ function CommandPalette() {
     } else if (e.key === "Enter") {
       e.preventDefault();
       const sel = results[highlight];
-      if (sel) activate(sel.item);
+      if (sel) activate(sel);
     }
   }
 
@@ -226,40 +337,60 @@ function CommandPalette() {
                 : "Tipp etwas — oder schau die häufigsten Themen unten."}
             </div>
           )}
-          {results.map(({ item, section }, idx) => {
-            const showSection = section !== lastSection;
-            lastSection = section;
+          {results.map((row, idx) => {
+            const showSection = row.section !== lastSection;
+            lastSection = row.section;
             const active = idx === highlight;
+            const key = row.kind === "article" ? row.item.id : row.action.id;
             return (
-              <div key={item.id}>
+              <div key={key}>
                 {showSection && (
                   <div className="px-5 pt-3 pb-1 text-[10px] uppercase tracking-[0.16em]" style={{ color: "var(--color-text-tertiary)" }}>
-                    {section}
+                    {row.section}
                   </div>
                 )}
                 <button
                   onMouseEnter={() => setHighlight(idx)}
-                  onClick={() => activate(item)}
+                  onClick={() => activate(row)}
                   className={`group flex w-full items-center gap-3 px-5 py-3 text-left transition-colors ${active ? "cp-row-active" : ""}`}
                 >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 text-xs" style={{ color: "var(--color-text-tertiary)" }}>
-                      <span className="font-mono">{item.id}</span>
-                      <span>·</span>
-                      <span>{CATEGORY_LABEL[item.category]}</span>
-                    </div>
-                    <div className="mt-0.5 truncate text-sm font-medium" style={{ color: active ? "var(--color-gold-bright)" : "var(--color-text-primary)" }}>
-                      {item.title}
-                    </div>
-                    {item.tldr && (
-                      <div className="mt-0.5 truncate text-xs" style={{ color: "var(--color-text-secondary)" }}>
-                        {item.tldr}
+                  {row.kind === "article" ? (
+                    <>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 text-xs" style={{ color: "var(--color-text-tertiary)" }}>
+                          <span className="font-mono">{row.item.id}</span>
+                          <span>·</span>
+                          <span>{CATEGORY_LABEL[row.item.category]}</span>
+                        </div>
+                        <div className="mt-0.5 truncate text-sm font-medium" style={{ color: active ? "var(--color-gold-bright)" : "var(--color-text-primary)" }}>
+                          {row.item.title}
+                        </div>
+                        {row.item.tldr && (
+                          <div className="mt-0.5 truncate text-xs" style={{ color: "var(--color-text-secondary)" }}>
+                            {row.item.tldr}
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: active ? "var(--color-gold-bright)" : "var(--color-text-quaternary)" }}>
-                    <path d="M9 18l6-6-6-6" />
-                  </svg>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: active ? "var(--color-gold-bright)" : "var(--color-text-quaternary)" }}>
+                        <path d="M9 18l6-6-6-6" />
+                      </svg>
+                    </>
+                  ) : (
+                    <>
+                      <span className="cp-action-icon" aria-hidden="true">⌘</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium" style={{ color: active ? "var(--color-gold-bright)" : "var(--color-text-primary)" }}>
+                          {row.action.title}
+                        </div>
+                        <div className="mt-0.5 text-xs" style={{ color: "var(--color-text-secondary)" }}>
+                          {row.action.hint}
+                        </div>
+                      </div>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: active ? "var(--color-gold-bright)" : "var(--color-text-quaternary)" }}>
+                        <path d="M9 18l6-6-6-6" />
+                      </svg>
+                    </>
+                  )}
                 </button>
               </div>
             );
@@ -291,6 +422,18 @@ function CommandPalette() {
           box-shadow: 0 28px 80px -12px rgba(26,22,18,0.30);
         }
         .cp-row-active { background: color-mix(in srgb, var(--color-gold-primary) 10%, transparent); }
+        .cp-action-icon {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 28px;
+          height: 28px;
+          border-radius: 6px;
+          border: 1px solid var(--color-border-subtle);
+          color: var(--color-gold-bright);
+          font-family: var(--font-mono);
+          font-size: 0.85rem;
+        }
         @keyframes cp-fade { from { opacity: 0; } to { opacity: 1; } }
         @keyframes cp-pop { from { opacity: 0; transform: translateY(-8px) scale(0.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
       `}</style>
