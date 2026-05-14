@@ -19,6 +19,18 @@ const { title, hideHeader = false } = Astro.props;
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title} — Admin · SalesAgent Hilfe</title>
+    <script is:inline>
+      (function () {
+        try {
+          var saved = localStorage.getItem("sd-theme");
+          var sysLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+          var theme = saved || (sysLight ? "light" : "dark");
+          document.documentElement.setAttribute("data-theme", theme);
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      })();
+    </script>
   </head>
   <body class="relative">
     <div class="aurora" aria-hidden="true"></div>

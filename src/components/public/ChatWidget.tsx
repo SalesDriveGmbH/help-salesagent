@@ -201,13 +201,7 @@ function ChatWidget() {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full px-5 py-3 text-sm font-medium shadow-2xl"
-          style={{
-            background: "var(--color-bg-base)",
-            color: "var(--color-text-primary)",
-            border: "1px solid var(--color-border-strong)",
-            boxShadow: "0 0 0 1px var(--color-border-subtle), 0 18px 40px -10px rgba(0,0,0,0.6), 0 0 60px var(--gold-glow)",
-          }}
+          className="sandy-trigger fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full px-5 py-3 text-sm font-medium"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--color-gold-bright)" }}>
             <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z" />
@@ -217,15 +211,7 @@ function ChatWidget() {
       )}
 
       {open && (
-        <div
-          className="fixed bottom-0 right-0 z-50 flex h-[100dvh] w-full flex-col sm:bottom-6 sm:right-6 sm:h-[640px] sm:max-h-[80dvh] sm:w-[460px] sm:rounded-2xl"
-          style={{
-            background: "rgba(8, 8, 8, 0.92)",
-            backdropFilter: "blur(28px)",
-            border: "1px solid var(--color-border-default)",
-            boxShadow: "0 20px 60px -10px rgba(0,0,0,0.7)",
-          }}
-        >
+        <div className="sandy-panel fixed bottom-0 right-0 z-50 flex h-[100dvh] w-full flex-col sm:bottom-6 sm:right-6 sm:h-[640px] sm:max-h-[80dvh] sm:w-[460px] sm:rounded-2xl">
           <header
             className="flex items-center justify-between gap-3 px-5 py-4"
             style={{ borderBottom: "1px solid var(--color-border-subtle)" }}
@@ -267,23 +253,7 @@ function ChatWidget() {
           <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4">
             {messages.map((m, i) => (
               <div key={i} className={`mb-4 flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div
-                  className="max-w-[85%] rounded-xl px-3.5 py-2.5 text-sm"
-                  style={
-                    m.role === "user"
-                      ? {
-                          background: "var(--color-gold-primary)",
-                          color: "#050505",
-                          letterSpacing: "-0.01em",
-                        }
-                      : {
-                          background: "rgba(14, 14, 14, 0.8)",
-                          color: "var(--color-text-primary)",
-                          border: "1px solid var(--color-border-subtle)",
-                          letterSpacing: "-0.01em",
-                        }
-                  }
-                >
+                <div className={`sandy-bubble max-w-[85%] rounded-xl px-3.5 py-2.5 text-sm ${m.role === "user" ? "sandy-bubble--user" : "sandy-bubble--assistant"}`}>
                   {m.role === "assistant" ? (
                     <div className="sandy-md" dangerouslySetInnerHTML={{ __html: renderMarkdown(m.content || "…") }} />
                   ) : (
@@ -335,8 +305,7 @@ function ChatWidget() {
               <button
                 type="submit"
                 disabled={streaming || !input.trim()}
-                className="flex h-11 w-11 items-center justify-center rounded-lg disabled:opacity-40"
-                style={{ background: "var(--color-gold-primary)", color: "#050505" }}
+                className="sandy-send flex h-11 w-11 items-center justify-center rounded-lg disabled:opacity-40"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
@@ -355,14 +324,84 @@ function ChatWidget() {
       )}
 
       <style>{`
+        /* Trigger-Button */
+        .sandy-trigger {
+          background: var(--color-bg-base);
+          color: var(--color-text-primary);
+          border: 1px solid var(--color-border-strong);
+          box-shadow:
+            0 0 0 1px var(--color-border-subtle),
+            0 18px 40px -10px rgba(0, 0, 0, 0.45),
+            0 0 60px var(--gold-glow);
+          cursor: pointer;
+        }
+        :root[data-theme="light"] .sandy-trigger {
+          background: #FFFFFF;
+          box-shadow:
+            0 1px 0 rgba(26, 22, 18, 0.04),
+            0 12px 32px -8px rgba(26, 22, 18, 0.20),
+            0 0 50px var(--gold-glow);
+        }
+
+        /* Side-Panel */
+        .sandy-panel {
+          background: color-mix(in srgb, var(--color-bg-base) 92%, transparent);
+          backdrop-filter: blur(28px);
+          -webkit-backdrop-filter: blur(28px);
+          border: 1px solid var(--color-border-default);
+          box-shadow: 0 20px 60px -10px rgba(0, 0, 0, 0.7);
+        }
+        :root[data-theme="light"] .sandy-panel {
+          background: #FFFFFF;
+          box-shadow: 0 20px 60px -12px rgba(26, 22, 18, 0.22);
+        }
+
+        /* Bubbles */
+        .sandy-bubble--user {
+          background: var(--color-gold-primary);
+          color: #FFFFFF;
+          letter-spacing: -0.01em;
+        }
+        :root:not([data-theme="light"]) .sandy-bubble--user { color: #050505; }
+        .sandy-bubble--assistant {
+          background: color-mix(in srgb, var(--color-bg-elevated) 80%, transparent);
+          color: var(--color-text-primary);
+          border: 1px solid var(--color-border-subtle);
+          letter-spacing: -0.01em;
+        }
+        :root[data-theme="light"] .sandy-bubble--assistant {
+          background: #F5F1E8;
+          border-color: var(--color-border-subtle);
+        }
+
+        /* Send-Button */
+        .sandy-send {
+          background: var(--color-gold-primary);
+          color: #FFFFFF;
+        }
+        :root:not([data-theme="light"]) .sandy-send { color: #050505; }
+        .sandy-send:not(:disabled):hover { background: var(--color-gold-bright); }
+
+        /* Markdown im Output */
         .sandy-md p { margin: 0.4rem 0; line-height: 1.55; }
         .sandy-md p:first-child { margin-top: 0; }
         .sandy-md p:last-child { margin-bottom: 0; }
         .sandy-md ul { padding-left: 1.1rem; margin: 0.4rem 0; }
         .sandy-md li { margin: 0.2rem 0; }
-        .sandy-md code { font-family: var(--font-mono); background: rgba(191,163,124,0.10); padding: 0.05rem 0.3rem; border-radius: 4px; font-size: 0.85em; }
+        .sandy-md code {
+          font-family: var(--font-mono);
+          background: rgba(191, 163, 124, 0.15);
+          padding: 0.05rem 0.3rem;
+          border-radius: 4px;
+          font-size: 0.85em;
+        }
         .sandy-md a { color: var(--color-gold-light); text-decoration: underline; }
         .sandy-md strong { font-weight: 600; }
+
+        /* Hover-State der Sub-Buttons abhängig vom Theme */
+        :root[data-theme="light"] .hover\\:bg-white\\/5:hover {
+          background-color: rgba(26, 22, 18, 0.04) !important;
+        }
       `}</style>
     </>
   );

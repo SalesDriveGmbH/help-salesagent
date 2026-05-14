@@ -1,22 +1,30 @@
 ---
+import ThemeToggle from "../public/ThemeToggle.astro";
 const adminEmail = Astro.locals.adminEmail ?? "";
 ---
 
-<header class="sticky top-0 z-40 w-full backdrop-blur-xl" style="background: rgba(5, 5, 5, 0.7); border-bottom: 1px solid var(--color-border-subtle);">
+<header class="glass-bar sticky top-0 z-40 w-full">
   <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
     <a href="/admin" class="flex items-center gap-3">
-      <img src="/logo.png" alt="SalesAgent" style="height: 28px; width: auto;" />
-      <span class="hidden sm:inline text-xs uppercase tracking-[0.18em]" style="color: var(--color-gold-primary);">Admin</span>
+      <img src="/logo.png" alt="SalesAgent" style="height: 28px; width: auto;" class="logo-img" />
+      <span class="hidden sm:inline text-xs uppercase tracking-[0.18em]" style="color: var(--color-gold-bright);">Admin</span>
     </a>
 
-    <nav class="flex items-center gap-5 text-sm">
+    <nav class="flex items-center gap-3 text-sm sm:gap-5">
       {adminEmail && (
-        <span class="hidden sm:inline text-xs" style="color: var(--color-text-tertiary);">{adminEmail}</span>
+        <span class="hidden md:inline text-xs" style="color: var(--color-text-tertiary);">{adminEmail}</span>
       )}
-      <a href="/" class="hidden md:inline transition-colors" style="color: var(--color-text-secondary);">Public ↗</a>
+      <a href="/" class="hidden md:inline transition-colors hover:text-[var(--color-gold-bright)]" style="color: var(--color-text-secondary);">Public ↗</a>
+      <ThemeToggle />
       <form method="post" action="/api/admin/logout" class="inline">
         <button class="btn btn-ghost" type="submit">Logout</button>
       </form>
     </nav>
   </div>
 </header>
+
+<style>
+  :root[data-theme="light"] .logo-img {
+    filter: invert(1) hue-rotate(180deg) brightness(0.85);
+  }
+</style>

@@ -97,15 +97,8 @@ export default function EscalationModal({ chatHistory, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(6px)" }}>
-      <div
-        className="w-full max-w-md rounded-2xl p-6"
-        style={{
-          background: "rgba(13, 13, 13, 0.95)",
-          border: "1px solid var(--color-border-default)",
-          boxShadow: "0 20px 60px -10px rgba(0,0,0,0.8)",
-        }}
-      >
+    <div className="escalation-backdrop fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div className="escalation-panel w-full max-w-md rounded-2xl p-6">
         {done ? (
           <div>
             <h3 className="h-display text-2xl" style={{ color: "var(--color-text-primary)" }}>Danke!</h3>

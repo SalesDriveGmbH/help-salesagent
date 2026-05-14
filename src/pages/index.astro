@@ -18,14 +18,14 @@ function slugOf(entry: typeof all[number]) {
 ---
 
 <BaseLayout title="Hilfe & Antworten — SalesAgent" description="Hilfebereich für SalesAgents von SalesDrive. Antworten zu Abrechnung, Onboarding, Verträgen und Tools.">
-  <section class="relative mx-auto max-w-6xl px-6 pt-16 pb-12 sm:pt-24 sm:pb-16">
+  <section class="relative mx-auto max-w-6xl px-6 pt-20 pb-14 sm:pt-28 sm:pb-20">
     <div class="reveal max-w-3xl">
       <p class="text-xs uppercase tracking-[0.18em]" style="color: var(--color-gold-dim);">SalesAgent · Hilfebereich</p>
-      <h1 class="h-display mt-3 text-5xl sm:text-7xl" style="color: var(--color-text-primary);">
-        Hilfe<span style="color: var(--color-gold-bright);">.</span><br />Und Antworten<span style="color: var(--color-gold-bright);">.</span>
+      <h1 class="h-display mt-4 text-5xl sm:text-7xl" style="color: var(--color-text-primary);">
+        Hilfe &amp; Antworten<span style="color: var(--color-gold-bright);">.</span>
       </h1>
-      <p class="mt-6 max-w-xl text-base sm:text-lg" style="color: var(--color-text-secondary);">
-        Alles, was du als SalesAgent wissen musst — Abrechnung, Onboarding, Tools, Vertrag. Such direkt oder frag Sandy.
+      <p class="mt-5 max-w-xl text-base sm:text-lg" style="color: var(--color-text-secondary);">
+        Alles, was du als SalesAgent wissen musst. Such direkt, browse die Themen — oder frag Sandy.
       </p>
     </div>
 
@@ -33,18 +33,20 @@ function slugOf(entry: typeof all[number]) {
       <SearchBar size="lg" />
     </div>
 
-    <div class="reveal reveal-delay-2 mt-3 flex flex-wrap items-center gap-2 text-xs" style="color: var(--color-text-tertiary);">
-      <span>Beliebt:</span>
+    <div class="reveal reveal-delay-2 mt-4 flex flex-wrap items-center gap-2 text-xs" style="color: var(--color-text-tertiary);">
+      <span class="mr-1">Beliebt:</span>
       {["Auszahlung", "Konversionsrate", "Kontoblatt", "Einsendeschluss"].map((q) => (
-        <button class="rounded-full border px-2.5 py-1 hover:text-[var(--color-gold-light)]" style="border-color: var(--color-border-subtle);" data-quick={q} type="button">{q}</button>
+        <button class="rounded-full border px-2.5 py-1 transition-colors hover:text-[var(--color-gold-bright)]" style="border-color: var(--color-border-subtle);" data-quick={q} type="button">{q}</button>
       ))}
     </div>
   </section>
 
-  <section class="mx-auto max-w-6xl px-6 pb-16">
+  <div class="divider-gold mx-auto max-w-6xl"></div>
+
+  <section class="mx-auto max-w-6xl px-6 py-14">
     <div class="mb-6 flex items-baseline justify-between">
-      <h2 class="h-display text-xl" style="color: var(--color-text-primary); letter-spacing: -0.03em;">Häufig gesucht</h2>
-      <span class="text-xs" style="color: var(--color-text-tertiary);">Top-Themen Abrechnung</span>
+      <h2 class="h-display text-xl sm:text-2xl" style="color: var(--color-text-primary); letter-spacing: -0.03em;">Häufig gesucht</h2>
+      <span class="text-xs uppercase tracking-[0.14em]" style="color: var(--color-text-tertiary);">Abrechnung</span>
     </div>
     <div class="reveal reveal-delay-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
       {featured.map((a) => (
@@ -59,10 +61,12 @@ function slugOf(entry: typeof all[number]) {
     </div>
   </section>
 
-  <section class="mx-auto max-w-6xl px-6 pb-24">
+  <div class="divider-gold mx-auto max-w-6xl"></div>
+
+  <section class="mx-auto max-w-6xl px-6 py-14 pb-24">
     <div class="mb-6 flex items-baseline justify-between">
-      <h2 class="h-display text-xl" style="color: var(--color-text-primary); letter-spacing: -0.03em;">Themen-Kategorien</h2>
-      <a href="/kontakt" class="text-xs hover:text-[var(--color-gold-light)]" style="color: var(--color-text-tertiary);">Kontakt zum Support</a>
+      <h2 class="h-display text-xl sm:text-2xl" style="color: var(--color-text-primary); letter-spacing: -0.03em;">Themen</h2>
+      <a href="/kontakt" class="text-xs uppercase tracking-[0.14em] hover:text-[var(--color-gold-bright)]" style="color: var(--color-text-tertiary);">Kontakt</a>
     </div>
     <div class="reveal reveal-delay-4">
       <CategoryGrid />
