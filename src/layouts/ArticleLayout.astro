@@ -40,7 +40,28 @@ function nextUpSlug(e: CollectionEntry<"articles">) {
 }
 ---
 
-<BaseLayout title={data.title} description={data.tldr ?? data.title}>
+<BaseLayout title={data.title} description={data.tldr ?? data.title} ogType="article">
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": data.title,
+      "description": data.tldr ?? data.title,
+      "datePublished": data.last_updated,
+      "dateModified": data.last_updated,
+      "inLanguage": "de-AT",
+      "author": { "@type": "Organization", "name": "SalesAgent" },
+      "publisher": {
+        "@type": "Organization",
+        "name": "SalesAgent",
+        "logo": { "@type": "ImageObject", "url": "https://help.salesagent.at/logo.png" }
+      },
+      "mainEntityOfPage": new URL(Astro.url.pathname, "https://help.salesagent.at").toString(),
+      "articleSection": category?.title ?? data.category,
+      "keywords": (data.keywords ?? []).join(", "),
+    })}
+  />
   <div id="reading-progress" class="reading-progress" aria-hidden="true"></div>
   <article class="mx-auto max-w-6xl px-6 pb-24 pt-10">
     <nav class="mb-8 flex items-center gap-2 text-xs" style="color: var(--color-text-tertiary);" aria-label="Breadcrumbs">
@@ -338,7 +359,7 @@ function nextUpSlug(e: CollectionEntry<"articles">) {
       });
     });
 
-    // ── Zuletzt-gelesen tracken (für Command Palette) ──────────────────
+    // ── Zuletzt-gelesen + Reading-Streak ───────────────────────────────
     try {
       const ID = document.querySelector("[data-bookmark]")?.getAttribute("data-bookmark");
       if (ID) {
@@ -346,8 +367,18 @@ function nextUpSlug(e: CollectionEntry<"articles">) {
         const prev = JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]") as string[];
         const next = [ID, ...prev.filter((x) => x !== ID)].slice(0, 5);
         localStorage.setItem(RECENT_KEY, JSON.stringify(next));
-        // Server-side tracking (für /admin/insights)
         navigator.sendBeacon?.("/api/track", JSON.stringify({ event: "article-view", value: ID }));
+
+        // Reading-Streak: zählt aufeinanderfolgende Tage mit mind. einem Article-View
+        const STREAK_KEY = "sd:streak";
+        const today = new Date().toISOString().slice(0, 10);
+        const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+        const s = JSON.parse(localStorage.getItem(STREAK_KEY) ?? '{"days":0,"last":""}');
+        if (s.last !== today) {
+          s.days = s.last === yesterday ? (s.days || 0) + 1 : 1;
+          s.last = today;
+          localStorage.setItem(STREAK_KEY, JSON.stringify(s));
+        }
       }
     } catch {}
 
