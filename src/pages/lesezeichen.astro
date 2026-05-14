@@ -13,6 +13,19 @@ const articleData = all.map((a) => ({
   status: a.data.status,
   last_updated: a.data.last_updated,
 }));
+
+// Top-3 populäre Artikel als Empty-State-Vorschläge
+const suggestions = [...all]
+  .filter((a) => a.data.status === "complete")
+  .sort((a, b) => (a.data.faq_priority ?? 50) - (b.data.faq_priority ?? 50))
+  .slice(0, 3)
+  .map((a) => ({
+    id: a.data.id,
+    title: a.data.title,
+    category: a.data.category,
+    slug: a.id.replace(/^[^/]+\//, ""),
+    tldr: a.data.tldr ?? "",
+  }));
 ---
 
 <BaseLayout title="Lesezeichen" description="Deine gemerkten Artikel im SalesAgent-Hilfebereich.">
@@ -89,7 +102,7 @@ const articleData = all.map((a) => ({
     }
   </style>
 
-  <script is:inline define:vars={{ articleData }}>
+  <script is:inline define:vars={{ articleData, suggestions }}>
     (function () {
       const BOOKMARK_KEY = "sd:bookmarks";
       const CATEGORY_LABEL = {
@@ -153,18 +166,80 @@ const articleData = all.map((a) => ({
           .map((id) => articleData.find((a) => a.id === id))
           .filter(Boolean);
         if (found.length === 0) {
+          const suggestionHtml = (suggestions || []).map((a) => `
+            <a href="/artikel/${a.category}/${a.slug}" class="bm-suggest">
+              <div class="bm-suggest__id">${a.id}</div>
+              <div class="bm-suggest__title">${a.title}</div>
+              ${a.tldr ? `<div class="bm-suggest__tldr">${a.tldr}</div>` : ""}
+            </a>
+          `).join("");
           mount.innerHTML = `
             <div class="bm-empty">
-              <p style="color: var(--color-text-secondary);">
-                Du hast noch keine Artikel gemerkt.
+              <div class="bm-empty__icon" aria-hidden="true">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-gold-dim);">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                </svg>
+              </div>
+              <p style="color: var(--color-text-primary); font-size: 1.05rem; font-weight: 500;">
+                Noch keine Lesezeichen
               </p>
               <p class="mt-2 text-sm" style="color: var(--color-text-tertiary);">
-                Auf jeder Artikel-Seite kannst du oben rechts auf das Stern-Icon klicken.
+                Klick auf einer Artikel-Seite oben rechts auf das Stern-Icon — der Artikel landet dann hier.
               </p>
-              <a href="/" class="mt-5 inline-flex items-center gap-2 text-sm transition-colors hover:text-[var(--color-gold-bright)]" style="color: var(--color-text-secondary);">
-                ← Zur Startseite
-              </a>
             </div>
+            ${suggestions && suggestions.length ? `
+              <div class="mt-10">
+                <div class="text-[10px] uppercase tracking-[0.16em]" style="color: var(--color-text-tertiary);">Empfohlene Einstiege</div>
+                <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  ${suggestionHtml}
+                </div>
+              </div>
+            ` : ""}
+            <style>
+              .bm-empty__icon {
+                width: 56px; height: 56px;
+                margin: 0 auto 12px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 12px;
+                border: 1px solid var(--color-border-subtle);
+                background: color-mix(in srgb, var(--color-gold-primary) 8%, transparent);
+              }
+              .bm-suggest {
+                display: block;
+                padding: 14px 16px;
+                border-radius: 10px;
+                border: 1px solid var(--color-border-subtle);
+                background: color-mix(in srgb, var(--color-bg-elevated) 60%, transparent);
+                transition: all 220ms cubic-bezier(0.22, 1, 0.36, 1);
+              }
+              :root[data-theme="light"] .bm-suggest { background: #FFFFFF; }
+              .bm-suggest:hover {
+                border-color: var(--color-border-default);
+                transform: translateY(-1px);
+              }
+              .bm-suggest__id {
+                font-family: var(--font-mono);
+                font-size: 10px;
+                text-transform: uppercase;
+                letter-spacing: 0.16em;
+                color: var(--color-text-tertiary);
+              }
+              .bm-suggest__title {
+                margin-top: 4px;
+                font-size: 0.9rem;
+                font-weight: 500;
+                color: var(--color-text-primary);
+              }
+              .bm-suggest:hover .bm-suggest__title { color: var(--color-gold-bright); }
+              .bm-suggest__tldr {
+                margin-top: 4px;
+                font-size: 0.78rem;
+                color: var(--color-text-secondary);
+                line-height: 1.45;
+              }
+            </style>
           `;
           return;
         }
