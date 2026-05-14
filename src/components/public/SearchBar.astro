@@ -6,15 +6,16 @@ interface Props {
 
 const { size = "md", placeholder = "Was möchtest du wissen?" } = Astro.props;
 const inputClass = size === "lg"
-  ? "h-14 text-base sm:text-lg pl-14"
-  : "h-11 text-sm pl-11";
-const iconLeft = size === "lg" ? "left-5" : "left-4";
+  ? "h-14 text-base sm:text-lg"
+  : "h-11 text-sm";
+const iconLeftPx = size === "lg" ? 20 : 16;
 const iconSize = size === "lg" ? 20 : 18;
+const inputPadLeftRem = size === "lg" ? 3.5 : 2.75;
 ---
 
 <div class="relative w-full">
   <label class="sr-only" for="kb-search">Suche</label>
-  <svg class={`pointer-events-none absolute ${iconLeft} top-1/2 -translate-y-1/2`} style="color: var(--color-text-tertiary);" width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg class="pointer-events-none absolute top-1/2 -translate-y-1/2" style={`color: var(--color-text-tertiary); left: ${iconLeftPx}px;`} width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="11" cy="11" r="7"></circle>
     <path d="m21 21-4.35-4.35"></path>
   </svg>
@@ -24,6 +25,7 @@ const iconSize = size === "lg" ? 20 : 18;
     placeholder={placeholder}
     autocomplete="off"
     class={`input pr-20 ${inputClass}`}
+    style={`padding-left: ${inputPadLeftRem}rem;`}
   />
   <kbd class="absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-md border px-1.5 py-0.5 text-[11px] font-medium sm:inline-flex" style="color: var(--color-text-tertiary); border-color: var(--color-border-default);">⌘K</kbd>
 </div>

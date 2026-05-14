@@ -23,12 +23,15 @@ export default function EscalationModal({ chatHistory, onClose }: Props) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [message, setMessage] = useState("");
   const [token, setToken] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const turnstileRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
+
+  const hasChatContext = chatHistory.length > 1; // mehr als nur die Begrüßung von Sandy
 
   useEffect(() => {
     if (!SITE_KEY) return;
@@ -64,6 +67,10 @@ export default function EscalationModal({ chatHistory, onClose }: Props) {
       setError("Name und Email sind Pflichtfelder.");
       return;
     }
+    if (!hasChatContext && !message.trim()) {
+      setError("Beschreib uns kurz dein Anliegen.");
+      return;
+    }
     if (SITE_KEY && !token) {
       setError("Bitte den Bot-Schutz bestätigen.");
       return;
@@ -77,6 +84,7 @@ export default function EscalationModal({ chatHistory, onClose }: Props) {
           name,
           email,
           phone: phone || undefined,
+          message: message.trim() || undefined,
           turnstileToken: token,
           chatHistory,
         }),
@@ -113,7 +121,9 @@ export default function EscalationModal({ chatHistory, onClose }: Props) {
               <div>
                 <h3 className="h-display text-xl" style={{ color: "var(--color-text-primary)" }}>An Support eskalieren</h3>
                 <p className="mt-1 text-xs" style={{ color: "var(--color-text-tertiary)" }}>
-                  Wir leiten den Chat zusammen mit deinen Kontaktdaten an unser Team weiter.
+                  {hasChatContext
+                    ? "Wir leiten den Chat zusammen mit deinen Kontaktdaten weiter."
+                    : "Wir melden uns innerhalb von 24 h an Werktagen per Email."}
                 </p>
               </div>
               <button type="button" onClick={onClose} className="p-1.5 transition-colors hover:bg-white/5 rounded" style={{ color: "var(--color-text-tertiary)" }}>
@@ -124,13 +134,31 @@ export default function EscalationModal({ chatHistory, onClose }: Props) {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs" style={{ color: "var(--color-text-tertiary)" }}>Name *</label>
-              <input value={name} onChange={(e) => setName(e.target.value)} className="input" required />
+              <label className="mb-1 block text-xs" style={{ color: "var(--color-text-tertiary)" }}>
+                Worum geht's? {hasChatContext ? "(optional)" : "*"}
+              </label>
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder={hasChatContext
+                  ? "Falls du noch was ergänzen willst …"
+                  : "Beschreib uns kurz dein Anliegen …"}
+                className="input"
+                rows={4}
+                style={{ resize: "vertical", minHeight: 90 }}
+                required={!hasChatContext}
+              />
             </div>
 
-            <div>
-              <label className="mb-1 block text-xs" style={{ color: "var(--color-text-tertiary)" }}>Email *</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input" required />
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-xs" style={{ color: "var(--color-text-tertiary)" }}>Name *</label>
+                <input value={name} onChange={(e) => setName(e.target.value)} className="input" required />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs" style={{ color: "var(--color-text-tertiary)" }}>Email *</label>
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input" required />
+              </div>
             </div>
 
             <div>

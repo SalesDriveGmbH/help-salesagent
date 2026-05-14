@@ -24,10 +24,21 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     return new Response(JSON.stringify({ error: "invalid_body" }), { status: 400 });
   }
 
-  const { name, email, phone, turnstileToken, chatHistory } = body ?? {};
+  const { name, email, phone, message, turnstileToken, chatHistory } = body ?? {};
   if (!name || !email) {
     return new Response(JSON.stringify({ error: "missing_fields" }), { status: 400 });
   }
+  const historyArr: Array<{ role: string; content: string }> = Array.isArray(chatHistory) ? chatHistory : [];
+  const hasChat = historyArr.length > 1; // Sandys Begrüßung zählt nicht als Kontext
+  if (!hasChat && !String(message ?? "").trim()) {
+    return new Response(JSON.stringify({ error: "missing_message" }), { status: 400 });
+  }
+
+  // Anliegen-Text als initiale User-Message vorne anhängen, damit AI-Summary
+  // und Intercom-Conversation den Kontext klar haben.
+  const effectiveHistory = String(message ?? "").trim()
+    ? [{ role: "user", content: String(message).trim() }, ...historyArr]
+    : historyArr;
 
   const turnstileOk = await verifyTurnstile(turnstileToken ?? "", clientAddress);
   if (!turnstileOk) {
@@ -47,7 +58,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   let summary = "Eskalation aus dem SalesAgent-Hilfebereich.";
   let category: IntercomCategory = "sonstiges";
 
-  if (apiKey && Array.isArray(chatHistory) && chatHistory.length > 0) {
+  if (apiKey && effectiveHistory.length > 0) {
     try {
       const client = new Anthropic({ apiKey });
 
@@ -55,8 +66,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         model: CLAUDE_MODEL,
         max_tokens: 200,
         system:
-          "Du fasst einen Support-Chat in 1-2 prägnanten Sätzen zusammen, damit das Support-Team beim Öffnen sofort den Kontext versteht. Antworte NUR mit dem Summary-Text, ohne Einleitung, ohne Anführungszeichen.",
-        messages: [{ role: "user", content: JSON.stringify(chatHistory) }],
+          "Du fasst eine Support-Anfrage in 1-2 prägnanten Sätzen zusammen, damit das Support-Team beim Öffnen sofort den Kontext versteht. Antworte NUR mit dem Summary-Text, ohne Einleitung, ohne Anführungszeichen.",
+        messages: [{ role: "user", content: JSON.stringify(effectiveHistory) }],
       });
 
       const categoryPromise = client.messages.create({
@@ -64,7 +75,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         max_tokens: 30,
         system:
           "Du klassifizierst Support-Anfragen. Antworte AUSSCHLIESSLICH mit einem der folgenden Tokens, ohne weiteren Text: abrechnung, technik, projekt, vertrag, ausbildung, community, sonstiges. Bei Unklarheit: sonstiges.",
-        messages: [{ role: "user", content: JSON.stringify(chatHistory) }],
+        messages: [{ role: "user", content: JSON.stringify(effectiveHistory) }],
       });
 
       const [summaryRes, categoryRes] = await Promise.all([summaryPromise, categoryPromise]);
@@ -85,7 +96,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       phone,
       summary,
       category,
-      chatHistory: Array.isArray(chatHistory) ? chatHistory : [],
+      chatHistory: effectiveHistory,
     });
   } catch (e: any) {
     console.error("Intercom escalation failed:", e);
