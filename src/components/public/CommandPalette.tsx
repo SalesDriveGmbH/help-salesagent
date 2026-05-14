@@ -126,6 +126,37 @@ function normalize(s: string) {
     .replace(/ß/g, "ss");
 }
 
+// Levenshtein-Distance bis max 3 — Apple-style "Did you mean?"
+function levenshtein(a: string, b: string, max = 3): number {
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  const dp = Array.from({ length: a.length + 1 }, (_, i) => i);
+  for (let j = 1; j <= b.length; j++) {
+    let prev = dp[0];
+    dp[0] = j;
+    let rowMin = j;
+    for (let i = 1; i <= a.length; i++) {
+      const tmp = dp[i];
+      dp[i] = a[i - 1] === b[j - 1] ? prev : Math.min(prev, dp[i - 1], dp[i]) + 1;
+      prev = tmp;
+      if (dp[i] < rowMin) rowMin = dp[i];
+    }
+    if (rowMin > max) return max + 1;
+  }
+  return dp[a.length];
+}
+
+function findClosest(query: string, candidates: string[], max = 3): string | null {
+  const nq = normalize(query);
+  let best: { word: string; dist: number } | null = null;
+  for (const c of candidates) {
+    const nc = normalize(c);
+    if (nc === nq) return null; // exact match — no suggestion needed
+    const d = levenshtein(nq, nc, max);
+    if (d <= max && (!best || d < best.dist)) best = { word: c, dist: d };
+  }
+  return best?.word ?? null;
+}
+
 function score(item: IndexItem, query: string): number {
   if (!query) return 0;
   const q = normalize(query);
@@ -332,8 +363,23 @@ function CommandPalette() {
             <div className="px-5 py-10 text-center text-sm" style={{ color: "var(--color-text-tertiary)" }}>
               {index === null
                 ? "Lade Index …"
-                : query.trim()
-                ? <>Keine Treffer für „{query}". <button className="ml-1 underline" onClick={() => { setOpen(false); window.dispatchEvent(new CustomEvent("sandy:open")); }}>Sandy fragen</button></>
+                : query.trim() ? (() => {
+                    const allKeywords = index.flatMap((i) => [i.title, ...i.keywords]);
+                    const suggestion = findClosest(query.trim(), allKeywords, 3);
+                    return (
+                      <>
+                        <div>Keine Treffer für „{query}".</div>
+                        {suggestion && (
+                          <div className="mt-2">
+                            Meintest du <button className="underline" style={{ color: "var(--color-gold-bright)" }} onClick={() => setQuery(suggestion)}>{suggestion}</button>?
+                          </div>
+                        )}
+                        <div className="mt-3">
+                          <button className="underline" onClick={() => { setOpen(false); window.dispatchEvent(new CustomEvent("sandy:open")); }}>Sandy fragen</button>
+                        </div>
+                      </>
+                    );
+                  })()
                 : "Tipp etwas — oder schau die häufigsten Themen unten."}
             </div>
           )}
