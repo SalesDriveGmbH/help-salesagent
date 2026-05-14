@@ -337,6 +337,15 @@ function ChatWidget() {
             0 18px 40px -10px rgba(0, 0, 0, 0.45),
             0 0 60px var(--gold-glow);
           cursor: pointer;
+          transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+                      box-shadow 320ms ease;
+        }
+        .sandy-trigger:hover {
+          transform: translateY(-1px);
+          box-shadow:
+            0 0 0 1px var(--color-border-subtle),
+            0 22px 50px -10px rgba(0, 0, 0, 0.55),
+            0 0 80px var(--gold-glow);
         }
         :root[data-theme="light"] .sandy-trigger {
           background: #FFFFFF;

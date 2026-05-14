@@ -156,7 +156,13 @@
     border-color: var(--color-border-strong);
   }
   @media (max-width: 640px) {
-    .welcome-card { left: 16px; right: 16px; bottom: 88px; width: auto; }
+    .welcome-card {
+      left: 16px;
+      right: 16px;
+      bottom: 96px; /* Platz für Floating Sandy-Button */
+      width: auto;
+    }
+    .welcome-card__inner { padding: 16px; }
   }
 </style>
 

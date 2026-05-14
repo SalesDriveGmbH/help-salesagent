@@ -79,6 +79,30 @@ body {
   color: #F5F1E8;
 }
 
+/* Skip-Link für Keyboard-Nutzung */
+.skip-link {
+  position: fixed;
+  top: -100px;
+  left: 16px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: var(--color-gold-primary);
+  color: #050505;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: top 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.skip-link:focus { top: 12px; outline: none; }
+
+/* Globale Focus-Ringe — sichtbar nur per Tastatur */
+:focus-visible {
+  outline: 2px solid var(--color-gold-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 /* Aurora-Glow Hintergrund — folgt subtil der Maus via --mx / --my (0–1) */
 .aurora {
   position: fixed;

@@ -10,15 +10,18 @@ interface Props {
   title: string;
   description?: string;
   hideChat?: boolean;
+  ogType?: "website" | "article";
 }
 
 const {
   title,
   description = "Hilfebereich für SalesAgents von SalesDrive — Antworten zu Abrechnung, Onboarding, Verträgen, Tools.",
   hideChat = false,
+  ogType = "website",
 } = Astro.props;
 
 const fullTitle = title.includes("SalesAgent Hilfe") ? title : `${title} — SalesAgent Hilfe`;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://help.salesagent.at").toString();
 ---
 
 <!doctype html>
@@ -30,9 +33,26 @@ const fullTitle = title.includes("SalesAgent Hilfe") ? title : `${title} — Sal
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preload" href="/logo.png" as="image" fetchpriority="high" />
+    <link rel="canonical" href={canonical} />
     <meta name="view-transition" content="same-origin" />
     <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#050505" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#FAF7F0" media="(prefers-color-scheme: light)" />
+    <meta name="format-detection" content="telephone=no" />
     <title>{fullTitle}</title>
+
+    {/* Open Graph */}
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="SalesAgent Hilfe" />
+    <meta property="og:locale" content="de_AT" />
+    <meta property="og:image" content="/og-image.svg" />
+    {/* Twitter Card */}
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
     <script is:inline>
       (function () {
         try {
@@ -51,11 +71,12 @@ const fullTitle = title.includes("SalesAgent Hilfe") ? title : `${title} — Sal
     </script>
   </head>
   <body class="relative">
+    <a href="#main-content" class="skip-link">Zum Inhalt springen</a>
     <div class="aurora" aria-hidden="true"></div>
     <GrainOverlay />
     <div class="relative z-10 flex min-h-screen flex-col">
       <Header />
-      <main class="flex-1">
+      <main id="main-content" class="flex-1" tabindex="-1">
         <slot />
       </main>
       <Footer />

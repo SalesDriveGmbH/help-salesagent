@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /admin/
+Disallow: /search-index.json
 
 Sitemap: https://help.salesagent.at/sitemap-index.xml
