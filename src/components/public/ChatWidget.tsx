@@ -117,10 +117,20 @@ function ChatWidget() {
         {
           role: "assistant",
           content:
-            "Soll ich das an unser Support-Team weitergeben? Dann meldet sich jemand direkt bei dir per Email.",
+            "Soll ich das an unser Support-Team weitergeben? Dann meldet sich jemand direkt bei dir per Email.\n\nKlick auf **„Mit Support reden"** unten — oder antworte mit *„Ja"*.",
         },
       ]);
       setAutoSuggested(true);
+    }
+  }, [messages, autoSuggested]);
+
+  // Wenn der User nach Auto-Suggestion „Ja"/„Gerne"/„Bitte" schickt → Eskalations-Modal direkt öffnen
+  useEffect(() => {
+    if (!autoSuggested) return;
+    const last = messages[messages.length - 1];
+    if (last?.role !== "user") return;
+    if (/^\s*(ja|gerne|bitte|ok|okay|yes|jep|jo)\b/i.test(last.content)) {
+      setEscalateOpen(true);
     }
   }, [messages, autoSuggested]);
 

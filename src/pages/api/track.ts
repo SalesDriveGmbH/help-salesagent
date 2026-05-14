@@ -7,7 +7,14 @@ const ALLOWED = new Set([
   "search", "search-no-result", "article-view", "bookmark", "chat-open", "escalation",
 ]);
 
+// Bots aus dem Tracking ausschließen — sonst verzerren sie die Insights
+const BOT_RE = /bot|crawler|spider|crawling|preview|wget|curl|facebookexternalhit|whatsapp|telegram|slack/i;
+
 export const POST: APIRoute = async ({ request }) => {
+  // Bots skippen
+  const ua = request.headers.get("user-agent") ?? "";
+  if (BOT_RE.test(ua)) return new Response("", { status: 204 });
+
   let body: any;
   try { body = await request.json(); } catch {
     return new Response("", { status: 204 });
