@@ -43,7 +43,7 @@ const inputClass = size === "lg"
       loadingPromise = (async () => {
         try {
           // @ts-ignore
-          pagefind = await import("/pagefind/pagefind.js");
+          pagefind = await import(/* @vite-ignore */ "/pagefind/pagefind.js");
           await pagefind.options({});
           return pagefind;
         } catch (e) {

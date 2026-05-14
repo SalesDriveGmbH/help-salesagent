@@ -11,6 +11,11 @@ export default defineConfig({
   integrations: [react(), sitemap()],
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      rollupOptions: {
+        external: [/^\/pagefind\//],
+      },
+    },
   },
   prefetch: {
     prefetchAll: true,
