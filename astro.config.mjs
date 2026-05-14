@@ -8,6 +8,9 @@ export default defineConfig({
   site: "https://help.salesagent.at",
   output: "server",
   adapter: vercel(),
+  security: {
+    checkOrigin: false,
+  },
   integrations: [react(), sitemap()],
   vite: {
     plugins: [tailwindcss()],
