@@ -144,6 +144,33 @@ export default function Library({ categories, articles, onReview: _onReview }: {
           <button onClick={openNew} className="btn btn-primary w-full">+ Neuer Artikel</button>
         </div>
 
+        {/* Status-Heatmap */}
+        {(() => {
+          const total = articles.length || 1;
+          const complete = articles.filter((a) => a.status === "complete").length;
+          const partial = articles.filter((a) => a.status === "partial").length;
+          const todo = articles.filter((a) => a.status === "todo").length;
+          const pct = (n: number) => Math.round((n / total) * 100);
+          return (
+            <div className="mt-4 rounded-md border p-3" style={{ borderColor: "var(--color-border-subtle)" }}>
+              <div className="flex items-baseline justify-between">
+                <div className="text-[10px] uppercase tracking-[0.16em]" style={{ color: "var(--color-text-tertiary)" }}>KB-Status</div>
+                <div className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>{articles.length} Artikel</div>
+              </div>
+              <div className="mt-2 flex h-2 overflow-hidden rounded-full" style={{ background: "var(--color-bg-base)" }}>
+                <div title={`${complete} complete (${pct(complete)}%)`} style={{ width: `${pct(complete)}%`, background: "#9DD9A8" }} />
+                <div title={`${partial} partial (${pct(partial)}%)`}   style={{ width: `${pct(partial)}%`,   background: "var(--color-gold-primary)" }} />
+                <div title={`${todo} todo (${pct(todo)}%)`}             style={{ width: `${pct(todo)}%`,     background: "#E3A66A" }} />
+              </div>
+              <div className="mt-2 flex items-center justify-between text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>
+                <span><span style={{ color: "#9DD9A8" }}>●</span> {complete} fertig</span>
+                <span><span style={{ color: "var(--color-gold-light)" }}>●</span> {partial} partial</span>
+                <span><span style={{ color: "#E3A66A" }}>●</span> {todo} todo</span>
+              </div>
+            </div>
+          );
+        })()}
+
         <div className="mt-4 space-y-1">
           {categories.map((cat) => {
             const list = byCat[cat.slug] ?? [];

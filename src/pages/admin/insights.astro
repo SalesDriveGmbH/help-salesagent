@@ -1,11 +1,35 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
-import { loadInsights } from "../../lib/insights";
+import { loadInsights, loadAllSeries } from "../../lib/insights";
 import { getCollection } from "astro:content";
 
 export const prerender = false;
 
-const insights = await loadInsights();
+const [insights, series] = await Promise.all([loadInsights(), loadAllSeries(7)]);
+
+function sparklinePath(values: number[], w = 100, h = 28): string {
+  if (values.length === 0) return "";
+  const max = Math.max(1, ...values);
+  const step = w / Math.max(1, values.length - 1);
+  return values
+    .map((v, i) => `${i === 0 ? "M" : "L"}${(i * step).toFixed(2)},${(h - (v / max) * h).toFixed(2)}`)
+    .join(" ");
+}
+
+const sparks: Record<string, string> = {
+  search: sparklinePath(series.search ?? []),
+  view: sparklinePath(series["article-view"] ?? []),
+  bookmark: sparklinePath(series.bookmark ?? []),
+  chat: sparklinePath(series["chat-open"] ?? []),
+  escalation: sparklinePath(series.escalation ?? []),
+};
+const seriesTotals: Record<string, number> = {
+  search: (series.search ?? []).reduce((s, x) => s + x, 0),
+  view: (series["article-view"] ?? []).reduce((s, x) => s + x, 0),
+  bookmark: (series.bookmark ?? []).reduce((s, x) => s + x, 0),
+  chat: (series["chat-open"] ?? []).reduce((s, x) => s + x, 0),
+  escalation: (series.escalation ?? []).reduce((s, x) => s + x, 0),
+};
 
 // ID-zu-Title Map für hübschere Anzeige
 const articles = await getCollection("articles");
@@ -66,20 +90,41 @@ const CATEGORY_LABEL: Record<string, string> = {
       </div>
     </div>
 
-    {/* Daily-Counter */}
+    {/* Daily-Counter + 7-Tage-Sparkline */}
     <div class="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-5">
       {[
-        { label: "Suchen heute",       value: insights.daily.search,     hue: "var(--color-gold-primary)" },
-        { label: "Artikel-Views",      value: insights.daily.view,       hue: "var(--color-gold-light)" },
-        { label: "Bookmarks",          value: insights.daily.bookmark,   hue: "var(--color-gold-light)" },
-        { label: "Chat geöffnet",      value: insights.daily.chat,       hue: "var(--color-gold-light)" },
-        { label: "Eskalationen",       value: insights.daily.escalation, hue: "var(--color-gold-light)" },
+        { key: "search",     label: "Suchen",       today: insights.daily.search,     total: seriesTotals.search,     path: sparks.search },
+        { key: "view",       label: "Views",        today: insights.daily.view,       total: seriesTotals.view,       path: sparks.view },
+        { key: "bookmark",   label: "Bookmarks",    today: insights.daily.bookmark,   total: seriesTotals.bookmark,   path: sparks.bookmark },
+        { key: "chat",       label: "Chats",        today: insights.daily.chat,       total: seriesTotals.chat,       path: sparks.chat },
+        { key: "escalation", label: "Eskalationen", today: insights.daily.escalation, total: seriesTotals.escalation, path: sparks.escalation },
       ].map((m) => (
         <div class="card p-5">
-          <div class="text-[10px] uppercase tracking-[0.16em]" style="color: var(--color-text-tertiary);">{m.label}</div>
-          <div class="mt-2 font-display text-3xl font-semibold" style={`color: ${m.hue}; letter-spacing: -0.04em;`}>{m.value}</div>
+          <div class="flex items-baseline justify-between gap-2">
+            <div class="text-[10px] uppercase tracking-[0.16em]" style="color: var(--color-text-tertiary);">{m.label}</div>
+            <div class="text-[10px]" style="color: var(--color-text-tertiary);">7 Tage: {m.total}</div>
+          </div>
+          <div class="mt-2 font-display text-3xl font-semibold" style="color: var(--color-gold-light); letter-spacing: -0.04em;">{m.today}</div>
+          <svg viewBox="0 0 100 28" preserveAspectRatio="none" class="mt-3 h-7 w-full" aria-hidden="true">
+            {m.path ? (
+              <>
+                <path d={m.path} fill="none" stroke="var(--color-gold-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
+                <path d={`${m.path} L100,28 L0,28 Z`} fill="url(#spark-fade)" opacity="0.35" />
+              </>
+            ) : (
+              <line x1="0" y1="14" x2="100" y2="14" stroke="var(--color-border-default)" stroke-dasharray="2 3" stroke-width="1" />
+            )}
+          </svg>
         </div>
       ))}
+      <svg width="0" height="0" style="position:absolute;">
+        <defs>
+          <linearGradient id="spark-fade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"  stop-color="var(--color-gold-primary)" stop-opacity="0.4" />
+            <stop offset="100%" stop-color="var(--color-gold-primary)" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+      </svg>
     </div>
 
     {/* Stat-Grid */}

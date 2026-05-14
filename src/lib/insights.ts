@@ -95,6 +95,31 @@ async function dailyCount(event: TrackEvent): Promise<number> {
   catch { return 0; }
 }
 
+function dayOffset(daysBack: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() - daysBack);
+  return d.toISOString().slice(0, 10);
+}
+
+export async function loadDailySeries(event: TrackEvent, days = 7): Promise<number[]> {
+  const keys = [];
+  for (let i = days - 1; i >= 0; i--) keys.push(K.daily(event, dayOffset(i)));
+  try {
+    const values = await Promise.all(keys.map((k) => kv.get(k)));
+    return values.map((v) => Number(v) || 0);
+  } catch {
+    return Array(days).fill(0);
+  }
+}
+
+export async function loadAllSeries(days = 7) {
+  const events: TrackEvent[] = ["search", "article-view", "bookmark", "chat-open", "escalation"];
+  const series = await Promise.all(events.map((e) => loadDailySeries(e, days)));
+  const out: Record<string, number[]> = {};
+  events.forEach((e, i) => { out[e] = series[i]; });
+  return out;
+}
+
 export async function loadInsights(): Promise<InsightsSnapshot> {
   const [topSearches, noResultSearches, topViews, topBookmarks, escalationsByCategory,
     dSearch, dView, dBookmark, dChat, dEsc] = await Promise.all([
