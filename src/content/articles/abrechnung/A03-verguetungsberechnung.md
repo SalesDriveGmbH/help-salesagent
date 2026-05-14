@@ -12,10 +12,12 @@ escalate_to: "accounting@salesdrive.at"
 escalate_tag: "abrechnung"
 ---
 
-## Vergütungssätze (netto, HVV §4.1)
+## Vergütungssätze (HVV §4.1)
 
 - **1,50 €** pro Wählversuch
 - **25,00 €** pro qualifiziertem Analysegespräch (mind. 20 Min.)
+
+Beide Beträge sind **brutto**. Davon werden 7,5 % Abwicklungsgebühr abgezogen. Steuern und Sozialversicherung sind eigenständig abzuführen (du bist selbstständiger Unternehmer — siehe Artikel V03).
 
 ## Davon werden abgezogen
 
