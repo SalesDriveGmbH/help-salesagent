@@ -1,64 +1,65 @@
 ---
 export const prerender = true;
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { getCollection } from "astro:content";
 import { CATEGORIES } from "../lib/categories";
+import { getCollection } from "astro:content";
 
 const all = await getCollection("articles");
-const featured = all
+// Top 6 mit niedrigster Priority (= populärste/wichtigste)
+const popular = [...all]
   .filter((a) => a.data.status === "complete")
   .sort((a, b) => (a.data.faq_priority ?? 50) - (b.data.faq_priority ?? 50))
-  .slice(0, 4);
+  .slice(0, 6);
 
-function slugOf(e: typeof all[number]) {
-  return e.id.replace(/^[^/]+\//, "");
+function slugOf(entry: typeof all[number]) {
+  return entry.id.replace(/^[^/]+\//, "");
 }
 ---
 
-<BaseLayout title="Nicht gefunden">
-  <section class="mx-auto max-w-3xl px-6 pt-24 pb-24 sm:pt-32">
-    <p class="text-[11px] uppercase tracking-[0.22em]" style="color: var(--color-gold-dim);">404</p>
-    <h1 class="not-found-headline mt-4" style="color: var(--color-text-primary);">
-      Hier ist nichts<span style="color: var(--color-gold-bright);">.</span>
-    </h1>
-    <p class="mt-5 max-w-xl text-base sm:text-lg" style="color: var(--color-text-secondary); letter-spacing: -0.012em; line-height: 1.55;">
-      Die Seite existiert nicht (mehr). Versuch die Suche, schau direkt in eine Kategorie oder frag Sandy.
-    </p>
+<BaseLayout title="Seite nicht gefunden">
+  <section class="mx-auto max-w-3xl px-6 py-24">
+    <div class="reveal">
+      <p class="text-[11px] uppercase tracking-[0.22em]" style="color: var(--color-gold-dim);">Fehler 404</p>
+      <h1 class="not-found-headline mt-4" style="color: var(--color-text-primary);">
+        Hier ist nichts<span style="color: var(--color-gold-bright);">.</span>
+      </h1>
+      <p class="mt-5 max-w-xl text-base sm:text-lg" style="color: var(--color-text-secondary);">
+        Die Seite existiert nicht (mehr) oder du hast dich vertippt. Aber wir helfen dir weiter — wähl unten ein häufiges Thema, nutze die Suche oder frag Sandy.
+      </p>
+    </div>
 
     <div class="reveal reveal-delay-1 mt-8 flex flex-wrap items-center gap-3">
-      <button class="nf-cta-primary" data-search-open type="button">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/>
-        </svg>
-        Suchen
-        <kbd class="kbd-inline">⌘K</kbd>
+      <button class="not-found-cta-primary" type="button" onclick="window.dispatchEvent(new CustomEvent('palette:open'))">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+        Suche öffnen
+        <kbd class="kbd-404">⌘K</kbd>
       </button>
-      <a href="/" class="btn btn-ghost">Zur Startseite</a>
-      <button class="btn btn-ghost" data-open-chat type="button">Sandy fragen</button>
+      <button class="not-found-cta-secondary" type="button" onclick="window.dispatchEvent(new CustomEvent('sandy:open'))">
+        Sandy fragen
+      </button>
+      <a href="/" class="text-sm transition-colors hover:text-[var(--color-gold-bright)]" style="color: var(--color-text-tertiary);">← Zur Startseite</a>
     </div>
 
-    <div class="mt-16">
-      <p class="text-xs uppercase tracking-[0.16em]" style="color: var(--color-text-tertiary);">Vielleicht hilft das</p>
-      <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {featured.map((a) => (
-          <a href={`/artikel/${a.data.category}/${slugOf(a)}`} class="card group block p-4">
-            <div class="text-xs font-mono" style="color: var(--color-text-tertiary);">{a.data.id}</div>
+    <div class="reveal reveal-delay-2 mt-12">
+      <h2 class="text-xs uppercase tracking-[0.18em]" style="color: var(--color-text-tertiary);">Häufige Themen</h2>
+      <div class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {popular.map((a) => (
+          <a href={`/artikel/${a.data.category}/${slugOf(a)}`} class="not-found-link group">
+            <div class="flex items-center gap-2 text-[10px] uppercase tracking-[0.16em]" style="color: var(--color-text-tertiary);">
+              <span class="font-mono">{a.data.id}</span>
+            </div>
             <div class="mt-1 text-sm font-medium transition-colors group-hover:text-[var(--color-gold-bright)]" style="color: var(--color-text-primary);">{a.data.title}</div>
-            {a.data.tldr && <div class="mt-1.5 text-xs" style="color: var(--color-text-secondary);">{a.data.tldr}</div>}
           </a>
         ))}
       </div>
     </div>
 
-    <div class="mt-12">
-      <p class="text-xs uppercase tracking-[0.16em]" style="color: var(--color-text-tertiary);">Alle Themen</p>
-      <div class="mt-4 flex flex-wrap gap-2">
-        {CATEGORIES.map((c) => (
-          <a href={`/kategorie/${c.slug}`} class="rounded-full border px-3 py-1.5 text-xs transition-colors hover:text-[var(--color-gold-bright)]" style="border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
-            {c.title}
-          </a>
-        ))}
-      </div>
+    <div class="reveal reveal-delay-3 mt-10 flex flex-wrap gap-2">
+      {CATEGORIES.map((c) => (
+        <a href={`/kategorie/${c.slug}`} class="rounded-full border px-3 py-1.5 text-xs transition-all hover:text-[var(--color-gold-bright)] hover:border-[var(--color-border-strong)]" style="border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
+          {c.title}
+        </a>
+      ))}
     </div>
   </section>
 
@@ -69,42 +70,60 @@ function slugOf(e: typeof all[number]) {
       line-height: 0.95;
       font-size: clamp(3rem, 9vw, 6.5rem);
     }
-    .nf-cta-primary {
+    .not-found-cta-primary, .not-found-cta-secondary {
       display: inline-flex;
       align-items: center;
-      gap: 0.6rem;
+      gap: 0.55rem;
       padding: 0.85rem 1.4rem;
       border-radius: 8px;
-      background: var(--color-gold-primary);
-      color: #FFFFFF;
-      border: 1px solid var(--color-gold-primary);
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 500;
+      letter-spacing: -0.01em;
       cursor: pointer;
       transition: all 220ms cubic-bezier(0.22, 1, 0.36, 1);
     }
-    :root:not([data-theme="light"]) .nf-cta-primary { color: #050505; }
-    .nf-cta-primary:hover {
+    .not-found-cta-primary {
+      background: var(--color-gold-primary);
+      color: #FFFFFF;
+      border: 1px solid var(--color-gold-primary);
+    }
+    :root:not([data-theme="light"]) .not-found-cta-primary { color: #050505; }
+    .not-found-cta-primary:hover {
       background: var(--color-gold-bright);
       border-color: var(--color-gold-bright);
       transform: translateY(-1px);
     }
-    .kbd-inline {
+    .not-found-cta-secondary {
+      background: transparent;
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border-default);
+    }
+    .not-found-cta-secondary:hover {
+      border-color: var(--color-border-strong);
+      transform: translateY(-1px);
+    }
+    .kbd-404 {
+      margin-left: 0.3rem;
       padding: 0.1rem 0.4rem;
       border-radius: 4px;
-      border: 1px solid currentColor;
+      border: 1px solid rgba(255, 255, 255, 0.25);
       font-family: var(--font-mono);
-      font-size: 0.75rem;
-      opacity: 0.7;
+      font-size: 0.72rem;
+      opacity: 0.85;
     }
+    :root[data-theme="light"] .kbd-404 { border-color: rgba(255, 255, 255, 0.4); }
+    .not-found-link {
+      display: block;
+      padding: 0.85rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--color-border-subtle);
+      background: color-mix(in srgb, var(--color-bg-elevated) 60%, transparent);
+      transition: all 220ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .not-found-link:hover {
+      border-color: var(--color-border-default);
+      transform: translateY(-1px);
+    }
+    :root[data-theme="light"] .not-found-link { background: #FFFFFF; }
   </style>
-
-  <script>
-    document.querySelectorAll("[data-search-open]").forEach((b) => {
-      b.addEventListener("click", () => window.dispatchEvent(new CustomEvent("palette:open")));
-    });
-    document.querySelectorAll("[data-open-chat]").forEach((b) => {
-      b.addEventListener("click", () => window.dispatchEvent(new CustomEvent("sandy:open")));
-    });
-  </script>
 </BaseLayout>

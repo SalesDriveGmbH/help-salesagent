@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "@fontsource-variable/geist/index.css";
+@import "@fontsource-variable/geist-mono/index.css";
 
 @theme {
   --color-bg-base: #050505;
@@ -470,21 +472,8 @@ body {
   border-color: rgba(227, 166, 106, 0.25);
 }
 
-/* Geist-Font (variable, latin) */
-@font-face {
-  font-family: "Geist";
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url("https://cdn.jsdelivr.net/npm/@fontsource-variable/geist@5.1.0/files/geist-latin-wght-normal.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Geist Mono";
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url("https://cdn.jsdelivr.net/npm/@fontsource-variable/geist-mono@5.1.0/files/geist-mono-latin-wght-normal.woff2") format("woff2");
-}
+/* Geist + Geist Mono werden über @fontsource-variable lokal eingebunden (oben).
+   Astro/Vite serven die woff2-Files unter /_astro/, lange Cache-Lifetime. */
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 10px; height: 10px; }

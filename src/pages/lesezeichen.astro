@@ -1,0 +1,160 @@
+---
+export const prerender = true;
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const all = await getCollection("articles");
+const articleData = all.map((a) => ({
+  id: a.data.id,
+  title: a.data.title,
+  category: a.data.category,
+  slug: a.id.replace(/^[^/]+\//, ""),
+  tldr: a.data.tldr ?? "",
+  status: a.data.status,
+  last_updated: a.data.last_updated,
+}));
+---
+
+<BaseLayout title="Lesezeichen" description="Deine gemerkten Artikel im SalesAgent-Hilfebereich.">
+  <section class="mx-auto max-w-4xl px-6 pt-16 pb-24">
+    <nav class="mb-6 flex items-center gap-2 text-xs" style="color: var(--color-text-tertiary);">
+      <a href="/" class="hover:text-[var(--color-gold-bright)]">Hilfe</a>
+      <span>/</span>
+      <span style="color: var(--color-text-secondary);">Lesezeichen</span>
+    </nav>
+
+    <header class="reveal">
+      <p class="text-[11px] uppercase tracking-[0.22em]" style="color: var(--color-gold-dim);">Privat · lokal gespeichert</p>
+      <h1 class="lesezeichen-headline mt-4" style="color: var(--color-text-primary);">
+        Deine Lesezeichen<span style="color: var(--color-gold-bright);">.</span>
+      </h1>
+      <p class="mt-4 max-w-2xl text-base sm:text-lg" style="color: var(--color-text-secondary);">
+        Hier landen alle Artikel, die du dir gemerkt hast. Speicherort ist dein Browser — wir sehen die Liste nicht.
+      </p>
+    </header>
+
+    <div id="bookmarks-mount" class="mt-12"></div>
+
+    <template id="bookmark-tpl">
+      <a class="bm-item card group block p-5">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-center gap-2 text-[10px] uppercase tracking-[0.16em]" style="color: var(--color-text-tertiary);">
+            <span class="bm-id font-mono"></span>
+            <span>·</span>
+            <span class="bm-cat"></span>
+          </div>
+          <button class="bm-remove" type="button" title="Entfernen" aria-label="Lesezeichen entfernen">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="bm-title mt-2 text-base font-semibold transition-colors group-hover:text-[var(--color-gold-bright)]" style="color: var(--color-text-primary); letter-spacing: -0.015em;"></div>
+        <div class="bm-tldr mt-1 text-sm" style="color: var(--color-text-secondary);"></div>
+      </a>
+    </template>
+  </section>
+
+  <style>
+    .lesezeichen-headline {
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      font-size: clamp(2.5rem, 7vw, 4.5rem);
+    }
+    .bm-empty {
+      text-align: center;
+      padding: 3rem 1rem;
+      border-radius: 12px;
+      border: 1px dashed var(--color-border-default);
+      background: color-mix(in srgb, var(--color-bg-elevated) 40%, transparent);
+    }
+    .bm-remove {
+      width: 26px;
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      border: 1px solid var(--color-border-subtle);
+      background: transparent;
+      color: var(--color-text-tertiary);
+      cursor: pointer;
+      transition: all 160ms ease;
+    }
+    .bm-remove:hover {
+      color: #E3A66A;
+      border-color: rgba(227, 166, 106, 0.3);
+    }
+  </style>
+
+  <script is:inline define:vars={{ articleData }}>
+    (function () {
+      const BOOKMARK_KEY = "sd:bookmarks";
+      const CATEGORY_LABEL = {
+        abrechnung: "Abrechnung", technik: "Technik", projekt: "Projekte",
+        vertrag: "Vertrag", ausbildung: "Ausbildung", community: "Community",
+      };
+      const mount = document.getElementById("bookmarks-mount");
+      const tpl = document.getElementById("bookmark-tpl");
+      if (!mount || !tpl) return;
+
+      function load() {
+        try { return JSON.parse(localStorage.getItem(BOOKMARK_KEY) || "[]"); } catch { return []; }
+      }
+      function save(arr) {
+        try { localStorage.setItem(BOOKMARK_KEY, JSON.stringify(arr)); } catch {}
+      }
+
+      function render() {
+        const ids = load();
+        mount.innerHTML = "";
+        const found = ids
+          .map((id) => articleData.find((a) => a.id === id))
+          .filter(Boolean);
+        if (found.length === 0) {
+          mount.innerHTML = `
+            <div class="bm-empty">
+              <p style="color: var(--color-text-secondary);">
+                Du hast noch keine Artikel gemerkt.
+              </p>
+              <p class="mt-2 text-sm" style="color: var(--color-text-tertiary);">
+                Auf jeder Artikel-Seite kannst du oben rechts auf das Stern-Icon klicken.
+              </p>
+              <a href="/" class="mt-5 inline-flex items-center gap-2 text-sm transition-colors hover:text-[var(--color-gold-bright)]" style="color: var(--color-text-secondary);">
+                ← Zur Startseite
+              </a>
+            </div>
+          `;
+          return;
+        }
+        const frag = document.createDocumentFragment();
+        for (const a of found) {
+          const node = tpl.content.cloneNode(true);
+          const link = node.querySelector(".bm-item");
+          link.setAttribute("href", `/artikel/${a.category}/${a.slug}`);
+          node.querySelector(".bm-id").textContent = a.id;
+          node.querySelector(".bm-cat").textContent = CATEGORY_LABEL[a.category] || a.category;
+          node.querySelector(".bm-title").textContent = a.title;
+          const tldr = node.querySelector(".bm-tldr");
+          if (a.tldr) tldr.textContent = a.tldr;
+          else tldr.remove();
+          const removeBtn = node.querySelector(".bm-remove");
+          removeBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const next = load().filter((id) => id !== a.id);
+            save(next);
+            render();
+          });
+          frag.appendChild(node);
+        }
+        const list = document.createElement("div");
+        list.className = "grid grid-cols-1 gap-3 sm:grid-cols-2";
+        list.appendChild(frag);
+        mount.appendChild(list);
+      }
+      render();
+    })();
+  </script>
+</BaseLayout>

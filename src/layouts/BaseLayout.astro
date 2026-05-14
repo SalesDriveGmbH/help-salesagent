@@ -3,6 +3,8 @@ import "../styles/global.css";
 import Header from "../components/public/Header.astro";
 import Footer from "../components/public/Footer.astro";
 import GrainOverlay from "../components/public/GrainOverlay.astro";
+import WelcomeCard from "../components/public/WelcomeCard.astro";
+import OnboardingTour from "../components/public/OnboardingTour.astro";
 
 interface Props {
   title: string;
@@ -27,8 +29,6 @@ const fullTitle = title.includes("SalesAgent Hilfe") ? title : `${title} — Sal
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
     <link rel="preload" href="/logo.png" as="image" fetchpriority="high" />
     <meta name="view-transition" content="same-origin" />
     <meta name="robots" content="index, follow" />
@@ -61,6 +61,12 @@ const fullTitle = title.includes("SalesAgent Hilfe") ? title : `${title} — Sal
       <Footer />
     </div>
     <div id="palette-mount"></div>
+    {!hideChat && (
+      <>
+        <WelcomeCard />
+        <OnboardingTour />
+      </>
+    )}
     {!hideChat && (
       <>
         <button

@@ -15,6 +15,12 @@ const featured = FEATURED_IDS
 function slugOf(entry: typeof all[number]) {
   return entry.id.replace(/^[^/]+\//, "");
 }
+
+// 3 zuletzt aktualisierte Artikel mit Status complete (Banner)
+const recent = [...all]
+  .filter((a) => a.data.status === "complete")
+  .sort((a, b) => (b.data.last_updated ?? "").localeCompare(a.data.last_updated ?? ""))
+  .slice(0, 3);
 ---
 
 <BaseLayout title="Hilfe & Antworten — SalesAgent" description="Hilfebereich für SalesAgents von SalesDrive. Antworten zu Abrechnung, Onboarding, Verträgen und Tools.">
@@ -175,6 +181,37 @@ function slugOf(entry: typeof all[number]) {
       100% { transform: translate(-2vw, 3vw) scale(0.95); }
     }
     @media (prefers-reduced-motion: reduce) { .hero-orb { animation: none; } }
+
+    /* Recent-Updates-Banner */
+    .recent-banner {
+      border-color: var(--color-border-default);
+      background: linear-gradient(135deg, rgba(191, 163, 124, 0.06) 0%, rgba(191, 163, 124, 0.01) 100%);
+    }
+    .recent-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--color-gold-primary);
+      box-shadow: 0 0 0 0 rgba(191, 163, 124, 0.6);
+      animation: recent-pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes recent-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(191, 163, 124, 0.5); }
+      50%      { box-shadow: 0 0 0 6px rgba(191, 163, 124, 0); }
+    }
+    .recent-item {
+      border: 1px solid transparent;
+      transition: all 220ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .recent-item:hover {
+      border-color: var(--color-border-default);
+      background: color-mix(in srgb, var(--color-bg-hover) 60%, transparent);
+      transform: translateY(-1px);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .recent-dot { animation: none; }
+    }
   </style>
 
   <script>
@@ -212,6 +249,30 @@ function slugOf(entry: typeof all[number]) {
   </script>
 
   <div class="divider-gold mx-auto max-w-6xl"></div>
+
+  <section class="mx-auto max-w-6xl px-6 pt-12">
+    <div class="reveal recent-banner rounded-md border p-5 sm:p-6">
+      <div class="flex flex-wrap items-baseline justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <span class="recent-dot" aria-hidden="true"></span>
+          <h2 class="text-sm font-semibold uppercase tracking-[0.16em]" style="color: var(--color-gold-light);">Frisch aktualisiert</h2>
+        </div>
+        <a href="/kategorie/abrechnung" class="text-xs uppercase tracking-[0.14em] hover:text-[var(--color-gold-bright)]" style="color: var(--color-text-tertiary);">Alle Updates</a>
+      </div>
+      <div class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
+        {recent.map((a) => (
+          <a href={`/artikel/${a.data.category}/${slugOf(a)}`} class="recent-item group block rounded-md p-3">
+            <div class="flex items-center gap-2 text-[10px] uppercase tracking-[0.16em]" style="color: var(--color-text-tertiary);">
+              <span class="font-mono">{a.data.id}</span>
+              <span>·</span>
+              <span>{a.data.last_updated}</span>
+            </div>
+            <div class="mt-1 text-sm font-medium transition-colors group-hover:text-[var(--color-gold-bright)]" style="color: var(--color-text-primary);">{a.data.title}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
 
   <section class="mx-auto max-w-6xl px-6 py-14">
     <div class="mb-6 flex items-baseline justify-between">

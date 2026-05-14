@@ -1,0 +1,226 @@
+---
+---
+<div id="ob-tour" class="ob-tour" hidden aria-live="polite">
+  <div class="ob-tour__backdrop"></div>
+  <div class="ob-tour__spotlight"></div>
+  <div class="ob-tour__card" role="dialog" aria-label="Onboarding-Tour">
+    <div class="ob-tour__progress">
+      <span class="ob-tour__dot" data-step="0"></span>
+      <span class="ob-tour__dot" data-step="1"></span>
+      <span class="ob-tour__dot" data-step="2"></span>
+    </div>
+    <h3 class="ob-tour__title"></h3>
+    <p class="ob-tour__body"></p>
+    <div class="ob-tour__actions">
+      <button class="ob-tour__skip" data-ob-skip type="button">Überspringen</button>
+      <button class="ob-tour__next" data-ob-next type="button">Weiter</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .ob-tour { position: fixed; inset: 0; z-index: 80; pointer-events: none; }
+  .ob-tour[hidden] { display: none; }
+  .ob-tour > * { pointer-events: auto; }
+  .ob-tour__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    -webkit-mask: radial-gradient(circle at var(--cx, 50%) var(--cy, 50%), transparent 0, transparent var(--cr, 80px), black calc(var(--cr, 80px) + 30px));
+            mask: radial-gradient(circle at var(--cx, 50%) var(--cy, 50%), transparent 0, transparent var(--cr, 80px), black calc(var(--cr, 80px) + 30px));
+    transition: -webkit-mask 320ms ease, mask 320ms ease, background 320ms ease;
+  }
+  :root[data-theme="light"] .ob-tour__backdrop { background: rgba(26, 22, 18, 0.42); }
+  .ob-tour__spotlight {
+    position: absolute;
+    left: var(--sx, 50%);
+    top: var(--sy, 50%);
+    width: var(--sw, 200px);
+    height: var(--sh, 60px);
+    border-radius: 12px;
+    border: 1px solid var(--color-gold-primary);
+    box-shadow: 0 0 0 4px rgba(191, 163, 124, 0.25), 0 0 60px rgba(191, 163, 124, 0.35);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    transition: all 320ms cubic-bezier(0.22, 1, 0.36, 1);
+    opacity: 0;
+  }
+  .ob-tour.is-pointing .ob-tour__spotlight { opacity: 1; }
+  .ob-tour__card {
+    position: absolute;
+    left: var(--cardX, 50%);
+    top: var(--cardY, 50%);
+    transform: translate(-50%, -50%);
+    width: 320px;
+    max-width: calc(100vw - 32px);
+    padding: 18px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--color-border-default);
+    background: color-mix(in srgb, var(--color-bg-elevated) 96%, transparent);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 24px 80px -16px rgba(0, 0, 0, 0.55);
+    transition: all 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  :root[data-theme="light"] .ob-tour__card { background: #FFFFFF; }
+  .ob-tour__progress { display: flex; gap: 6px; }
+  .ob-tour__dot {
+    width: 16px; height: 4px; border-radius: 2px;
+    background: var(--color-border-default);
+    transition: background 240ms ease, width 240ms ease;
+  }
+  .ob-tour__dot.is-active { background: var(--color-gold-primary); width: 24px; }
+  .ob-tour__title {
+    margin-top: 14px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+  .ob-tour__body {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+  }
+  .ob-tour__actions {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .ob-tour__skip {
+    background: transparent;
+    border: 0;
+    color: var(--color-text-tertiary);
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 6px 0;
+  }
+  .ob-tour__skip:hover { color: var(--color-text-primary); }
+  .ob-tour__next {
+    background: var(--color-gold-primary);
+    color: #FFFFFF;
+    border: 0;
+    padding: 0.55rem 0.95rem;
+    border-radius: 7px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 200ms ease;
+  }
+  :root:not([data-theme="light"]) .ob-tour__next { color: #050505; }
+  .ob-tour__next:hover { background: var(--color-gold-bright); }
+</style>
+
+<script>
+  type Step = {
+    title: string;
+    body: string;
+    target?: string; // CSS selector
+    hint?: "search" | "chat" | "nav";
+  };
+
+  const STEPS: Step[] = [
+    {
+      title: "Sandy ist deine schnellste Antwort",
+      body: "Klick rechts unten auf den Sandy-Button und stell jede Frage. Sie antwortet 24/7 und eskaliert bei Bedarf an unser Team.",
+      target: "#sandy-trigger-shell",
+      hint: "chat",
+    },
+    {
+      title: "⌘K — Spring-Suche",
+      body: "Drück ⌘K (Strg+K) und such durch alle Artikel. Tippst du eine Frage, schlägt Sandy passende Themen vor.",
+      hint: "search",
+    },
+    {
+      title: "Themen durchstöbern",
+      body: "Wenn du nicht weißt, was du suchst: scroll runter zu den Themen-Karten. Sechs Kategorien decken alles vom Vertrag bis zum Skript ab.",
+      hint: "nav",
+    },
+  ];
+
+  const tour = document.getElementById("ob-tour");
+  if (!tour) {/* no-op */}
+  else {
+    let idx = 0;
+
+    function setSpotlight(target?: string) {
+      const sl = tour.querySelector<HTMLElement>(".ob-tour__spotlight");
+      const bg = tour.querySelector<HTMLElement>(".ob-tour__backdrop");
+      const card = tour.querySelector<HTMLElement>(".ob-tour__card");
+      if (!sl || !bg || !card) return;
+      if (!target) {
+        tour.classList.remove("is-pointing");
+        bg.style.setProperty("--cx", "50%");
+        bg.style.setProperty("--cy", "50%");
+        bg.style.setProperty("--cr", "0px");
+        card.style.setProperty("--cardX", "50%");
+        card.style.setProperty("--cardY", "50%");
+        return;
+      }
+      const el = document.querySelector<HTMLElement>(target);
+      if (!el) { tour.classList.remove("is-pointing"); return; }
+      const r = el.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      tour.classList.add("is-pointing");
+      sl.style.setProperty("--sx", `${cx}px`);
+      sl.style.setProperty("--sy", `${cy}px`);
+      sl.style.setProperty("--sw", `${Math.max(r.width + 20, 120)}px`);
+      sl.style.setProperty("--sh", `${Math.max(r.height + 20, 60)}px`);
+      bg.style.setProperty("--cx", `${cx}px`);
+      bg.style.setProperty("--cy", `${cy}px`);
+      bg.style.setProperty("--cr", `${Math.max(r.width, r.height) / 2 + 18}px`);
+      // Karte über/unter dem Spotlight platzieren
+      const vh = window.innerHeight;
+      const above = cy > vh / 2;
+      card.style.setProperty("--cardX", `${Math.min(window.innerWidth - 180, Math.max(180, cx))}px`);
+      card.style.setProperty("--cardY", above ? `${Math.max(140, r.top - 140)}px` : `${Math.min(vh - 140, r.bottom + 140)}px`);
+    }
+
+    function render() {
+      const s = STEPS[idx];
+      if (!s) { close(); return; }
+      tour.querySelector(".ob-tour__title")!.textContent = s.title;
+      tour.querySelector(".ob-tour__body")!.textContent = s.body;
+      tour.querySelectorAll<HTMLElement>(".ob-tour__dot").forEach((d, i) => {
+        d.classList.toggle("is-active", i === idx);
+      });
+      const nextBtn = tour.querySelector<HTMLElement>(".ob-tour__next");
+      if (nextBtn) nextBtn.textContent = idx === STEPS.length - 1 ? "Fertig" : "Weiter";
+      requestAnimationFrame(() => setSpotlight(s.target));
+    }
+
+    function next() {
+      idx++;
+      if (idx >= STEPS.length) close();
+      else render();
+    }
+
+    function close() {
+      tour.setAttribute("hidden", "");
+      try { localStorage.setItem("sd:onboarded", "1"); } catch {}
+    }
+
+    function open() {
+      tour.removeAttribute("hidden");
+      idx = 0;
+      render();
+    }
+
+    tour.querySelector("[data-ob-next]")?.addEventListener("click", next);
+    tour.querySelector("[data-ob-skip]")?.addEventListener("click", close);
+    document.addEventListener("keydown", (e) => {
+      if (tour.hasAttribute("hidden")) return;
+      if (e.key === "Escape") close();
+      if (e.key === "ArrowRight" || e.key === "Enter") next();
+    });
+    window.addEventListener("resize", () => {
+      const s = STEPS[idx];
+      if (!tour.hasAttribute("hidden") && s?.target) setSpotlight(s.target);
+    });
+    window.addEventListener("onboarding:start", open);
+  }
+</script>
