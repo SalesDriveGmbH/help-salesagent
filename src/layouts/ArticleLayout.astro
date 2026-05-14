@@ -2,6 +2,7 @@
 import BaseLayout from "./BaseLayout.astro";
 import StatusBadge from "../components/public/StatusBadge.astro";
 import { getCategory } from "../lib/categories";
+import { GLOSSARY } from "../lib/glossary";
 import { getCollection, render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 
@@ -20,14 +21,19 @@ const related = (data.related ?? [])
   .filter(Boolean) as CollectionEntry<"articles">[];
 
 const h2Headings = headings.filter((h) => h.depth === 2);
+
+// Lesezeit aus Body: ~ 200 WPM Deutsch
+const wordCount = ((entry.body ?? "").match(/\b\w+\b/g) ?? []).length;
+const readingMinutes = Math.max(1, Math.round(wordCount / 200));
 ---
 
 <BaseLayout title={data.title} description={data.tldr ?? data.title}>
+  <div id="reading-progress" class="reading-progress" aria-hidden="true"></div>
   <article class="mx-auto max-w-6xl px-6 pb-24 pt-10">
     <nav class="mb-8 flex items-center gap-2 text-xs" style="color: var(--color-text-tertiary);" aria-label="Breadcrumbs">
-      <a href="/" class="hover:text-[var(--color-gold-light)]">Hilfe</a>
+      <a href="/" class="hover:text-[var(--color-gold-bright)]">Hilfe</a>
       <span>/</span>
-      <a href={`/kategorie/${data.category}`} class="hover:text-[var(--color-gold-light)]">{category?.title}</a>
+      <a href={`/kategorie/${data.category}`} class="hover:text-[var(--color-gold-bright)]">{category?.title}</a>
       <span>/</span>
       <span style="color: var(--color-text-secondary);">{data.id}</span>
     </nav>
@@ -38,9 +44,17 @@ const h2Headings = headings.filter((h) => h.depth === 2);
           <div class="flex flex-wrap items-center gap-3 text-xs" style="color: var(--color-text-tertiary);">
             <span class="font-mono">{data.id}</span>
             <StatusBadge status={data.status} />
-            <span>· aktualisiert am {data.last_updated}</span>
+            <span>·</span>
+            <span>{readingMinutes} Min. Lesezeit</span>
+            <span>·</span>
+            <span>aktualisiert {data.last_updated}</span>
+            <button class="article-bookmark" data-bookmark={data.id} aria-label="Merken" title="Merken">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+              </svg>
+            </button>
           </div>
-          <h1 class="h-display mt-3 text-4xl sm:text-5xl" style="color: var(--color-text-primary);" data-pagefind-meta="title">
+          <h1 class="article-headline mt-4" style="color: var(--color-text-primary);" data-pagefind-meta="title">
             {data.title}
           </h1>
           {data.tldr && (
@@ -129,7 +143,99 @@ const h2Headings = headings.filter((h) => h.depth === 2);
     </div>
   </article>
 
+  <script is:inline define:vars={{ glossary: GLOSSARY }}>
+    // ── Glossar-Tooltips ────────────────────────────────────────────────
+    // Wir gehen durch alle Text-Knoten im prose-gold-Container und wrappen
+    // Glossar-Begriffe in <abbr> mit data-glossary.
+    (function () {
+      const prose = document.querySelector(".prose-gold");
+      if (!prose) return;
+      const terms = Object.keys(glossary).sort((a, b) => b.length - a.length);
+      const pattern = new RegExp("\\b(" + terms.map((t) => t.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&")).join("|") + ")\\b", "g");
+      function walk(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          if (!pattern.test(node.nodeValue)) return;
+          pattern.lastIndex = 0;
+          const frag = document.createDocumentFragment();
+          let last = 0;
+          let m;
+          while ((m = pattern.exec(node.nodeValue)) !== null) {
+            if (m.index > last) frag.appendChild(document.createTextNode(node.nodeValue.slice(last, m.index)));
+            const span = document.createElement("abbr");
+            span.className = "glossary-term";
+            span.setAttribute("data-glossary", m[0]);
+            span.setAttribute("title", glossary[m[0]]);
+            span.textContent = m[0];
+            frag.appendChild(span);
+            last = m.index + m[0].length;
+          }
+          if (last < node.nodeValue.length) frag.appendChild(document.createTextNode(node.nodeValue.slice(last)));
+          node.parentNode.replaceChild(frag, node);
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          const tag = node.tagName.toLowerCase();
+          if (["code", "pre", "a", "abbr", "script", "style"].includes(tag)) return;
+          // Kopie der ChildNodes, damit replaceChild im Loop nicht verrutscht
+          Array.from(node.childNodes).forEach(walk);
+        }
+      }
+      walk(prose);
+    })();
+  </script>
+
   <script>
+    // ── Lesefortschritt-Bar ─────────────────────────────────────────────
+    const bar = document.getElementById("reading-progress");
+    if (bar) {
+      const article = document.querySelector("article");
+      function update() {
+        if (!article) return;
+        const rect = article.getBoundingClientRect();
+        const total = rect.height - window.innerHeight;
+        const passed = Math.min(Math.max(-rect.top, 0), Math.max(total, 1));
+        const pct = total > 0 ? (passed / total) * 100 : 0;
+        bar.style.transform = `scaleX(${pct / 100})`;
+      }
+      window.addEventListener("scroll", update, { passive: true });
+      window.addEventListener("resize", update);
+      update();
+    }
+
+    // ── Bookmarks via localStorage ──────────────────────────────────────
+    const BOOKMARK_KEY = "sd:bookmarks";
+    function getBookmarks(): string[] {
+      try { return JSON.parse(localStorage.getItem(BOOKMARK_KEY) ?? "[]"); } catch { return []; }
+    }
+    function setBookmarks(arr: string[]) {
+      try { localStorage.setItem(BOOKMARK_KEY, JSON.stringify(arr)); } catch {}
+    }
+    document.querySelectorAll<HTMLElement>("[data-bookmark]").forEach((btn) => {
+      const id = btn.dataset.bookmark!;
+      const sync = () => {
+        const has = getBookmarks().includes(id);
+        btn.classList.toggle("is-active", has);
+        btn.setAttribute("title", has ? "Gemerkt — entfernen" : "Merken");
+      };
+      sync();
+      btn.addEventListener("click", () => {
+        const arr = getBookmarks();
+        const next = arr.includes(id) ? arr.filter((x) => x !== id) : [id, ...arr].slice(0, 50);
+        setBookmarks(next);
+        sync();
+      });
+    });
+
+    // ── Zuletzt-gelesen tracken (für Command Palette) ──────────────────
+    try {
+      const ID = document.querySelector("[data-bookmark]")?.getAttribute("data-bookmark");
+      if (ID) {
+        const RECENT_KEY = "sd:recent-articles";
+        const prev = JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]") as string[];
+        const next = [ID, ...prev.filter((x) => x !== ID)].slice(0, 5);
+        localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+      }
+    } catch {}
+
+    // ── Feedback ────────────────────────────────────────────────────────
     document.querySelectorAll("[data-feedback]").forEach((btn) => {
       btn.addEventListener("click", () => {
         const value = (btn as HTMLElement).dataset.feedback;
@@ -151,4 +257,50 @@ const h2Headings = headings.filter((h) => h.depth === 2);
       }
     });
   </script>
+
+  <style>
+    .reading-progress {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--color-gold-primary);
+      transform: scaleX(0);
+      transform-origin: 0 50%;
+      z-index: 50;
+      transition: transform 60ms linear;
+      box-shadow: 0 0 12px var(--gold-glow);
+    }
+    .article-headline {
+      font-weight: 600;
+      letter-spacing: -0.035em;
+      line-height: 1.05;
+      font-size: clamp(2.25rem, 5.5vw, 3.75rem);
+    }
+    .article-bookmark {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 26px;
+      width: 26px;
+      border-radius: 6px;
+      border: 1px solid var(--color-border-subtle);
+      background: transparent;
+      color: var(--color-text-tertiary);
+      cursor: pointer;
+      transition: all 180ms ease;
+    }
+    .article-bookmark:hover {
+      color: var(--color-gold-bright);
+      border-color: var(--color-border-default);
+    }
+    .article-bookmark.is-active {
+      color: var(--color-gold-bright);
+      border-color: var(--color-gold-primary);
+      background: color-mix(in srgb, var(--color-gold-primary) 12%, transparent);
+    }
+    .article-bookmark.is-active svg {
+      fill: currentColor;
+    }
+  </style>
 </BaseLayout>

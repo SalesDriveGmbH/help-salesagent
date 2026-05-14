@@ -5,109 +5,43 @@ interface Props {
 }
 
 const { size = "md", placeholder = "Was möchtest du wissen?" } = Astro.props;
-const inputClass = size === "lg"
-  ? "h-14 text-base sm:text-lg"
-  : "h-11 text-sm";
-const iconLeftPx = size === "lg" ? 20 : 16;
-const iconSize = size === "lg" ? 20 : 18;
-const inputPadLeftRem = size === "lg" ? 3.5 : 2.75;
+const isLg = size === "lg";
 ---
 
-<div class="relative w-full">
-  <label class="sr-only" for="kb-search">Suche</label>
-  <svg class="pointer-events-none absolute top-1/2 -translate-y-1/2" style={`color: var(--color-text-tertiary); left: ${iconLeftPx}px;`} width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<button
+  type="button"
+  data-search-trigger
+  class={`search-trigger group relative flex w-full items-center gap-3 rounded-md border text-left transition-all ${isLg ? "h-14 px-5 text-base" : "h-11 px-4 text-sm"}`}
+  aria-label="Suche öffnen (⌘K)"
+>
+  <svg width={isLg ? 20 : 18} height={isLg ? 20 : 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-text-tertiary);">
     <circle cx="11" cy="11" r="7"></circle>
     <path d="m21 21-4.35-4.35"></path>
   </svg>
-  <input
-    type="search"
-    id="kb-search"
-    placeholder={placeholder}
-    autocomplete="off"
-    class={`input pr-20 ${inputClass}`}
-    style={`padding-left: ${inputPadLeftRem}rem;`}
-  />
-  <kbd class="absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-md border px-1.5 py-0.5 text-[11px] font-medium sm:inline-flex" style="color: var(--color-text-tertiary); border-color: var(--color-border-default);">⌘K</kbd>
-</div>
+  <span class="flex-1 truncate" style="color: var(--color-text-tertiary);">{placeholder}</span>
+  <span class="hidden items-center gap-1 sm:flex">
+    <kbd class="rounded border px-1.5 py-0.5 font-mono text-[11px]" style="border-color: var(--color-border-default); color: var(--color-text-tertiary);">⌘K</kbd>
+  </span>
+</button>
 
-<div id="kb-search-results" class="mt-4 hidden"></div>
+<style>
+  .search-trigger {
+    background: color-mix(in srgb, var(--color-bg-elevated) 80%, transparent);
+    border-color: var(--color-border-subtle);
+    cursor: pointer;
+  }
+  .search-trigger:hover {
+    border-color: var(--color-border-default);
+    background: color-mix(in srgb, var(--color-bg-elevated) 95%, transparent);
+  }
+  :root[data-theme="light"] .search-trigger { background: #FFFFFF; border-color: var(--color-border-default); }
+  :root[data-theme="light"] .search-trigger:hover { background: #FFFFFF; border-color: var(--color-border-strong); }
+</style>
 
 <script>
-  // Search-Logik mit Pagefind (gebaut zur Build-Zeit unter /pagefind/)
-  const input = document.getElementById("kb-search") as HTMLInputElement | null;
-  const results = document.getElementById("kb-search-results");
-
-  if (input && results) {
-    let pagefind: any = null;
-    let loadingPromise: Promise<any> | null = null;
-
-    async function loadPagefind() {
-      if (pagefind) return pagefind;
-      if (loadingPromise) return loadingPromise;
-      loadingPromise = (async () => {
-        try {
-          // @ts-ignore
-          pagefind = await import(/* @vite-ignore */ "/pagefind/pagefind.js");
-          await pagefind.options({});
-          return pagefind;
-        } catch (e) {
-          console.warn("Pagefind nicht verfügbar:", e);
-          return null;
-        }
-      })();
-      return loadingPromise;
-    }
-
-    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-
-    input.addEventListener("input", () => {
-      if (debounceTimer) clearTimeout(debounceTimer);
-      const q = input.value.trim();
-      if (q.length < 2) {
-        results.classList.add("hidden");
-        results.innerHTML = "";
-        return;
-      }
-      debounceTimer = setTimeout(async () => {
-        const pf = await loadPagefind();
-        if (!pf) {
-          results.classList.remove("hidden");
-          results.innerHTML = `<div class="card p-4 text-sm" style="color: var(--color-text-secondary);">Suche wird vorbereitet …</div>`;
-          return;
-        }
-        const search = await pf.search(q);
-        if (!search.results.length) {
-          results.classList.remove("hidden");
-          results.innerHTML = `<div class="card p-4 text-sm" style="color: var(--color-text-secondary);">Keine Treffer für „${q}". <a href="#" data-open-chat class="underline" style="color: var(--color-gold-light);">Frag Sandy im Chat</a>.</div>`;
-          return;
-        }
-        const items = await Promise.all(search.results.slice(0, 6).map((r: any) => r.data()));
-        results.classList.remove("hidden");
-        results.innerHTML = items.map((item: any) => `
-          <a href="${item.url}" class="card mb-2 block p-4 transition-colors hover:translate-y-[-1px]">
-            <div class="text-sm font-semibold" style="color: var(--color-text-primary);">${item.meta?.title ?? item.url}</div>
-            <div class="mt-1 text-xs" style="color: var(--color-text-secondary);">${item.excerpt}</div>
-          </a>
-        `).join("");
-      }, 160);
+  document.querySelectorAll("[data-search-trigger]").forEach((el) => {
+    el.addEventListener("click", () => {
+      window.dispatchEvent(new CustomEvent("palette:open"));
     });
-
-    // ⌘K Shortcut
-    document.addEventListener("keydown", (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        input.focus();
-        input.select();
-      }
-    });
-
-    // Chat öffnen via Link in Suchergebnis
-    document.addEventListener("click", (e) => {
-      const target = e.target as HTMLElement;
-      if (target.closest("[data-open-chat]")) {
-        e.preventDefault();
-        window.dispatchEvent(new CustomEvent("sandy:open"));
-      }
-    });
-  }
+  });
 </script>

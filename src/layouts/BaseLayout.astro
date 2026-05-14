@@ -30,6 +30,7 @@ const fullTitle = title.includes("SalesAgent Hilfe") ? title : `${title} — Sal
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
     <link rel="preload" href="/logo.png" as="image" fetchpriority="high" />
+    <meta name="view-transition" content="same-origin" />
     <meta name="robots" content="index, follow" />
     <title>{fullTitle}</title>
     <script is:inline>
@@ -55,6 +56,7 @@ const fullTitle = title.includes("SalesAgent Hilfe") ? title : `${title} — Sal
       </main>
       <Footer />
     </div>
+    <div id="palette-mount"></div>
     {!hideChat && (
       <>
         <button
@@ -72,7 +74,38 @@ const fullTitle = title.includes("SalesAgent Hilfe") ? title : `${title} — Sal
       </>
     )}
     <script>
-      // ChatWidget wird erst geladen, wenn (1) jemand auf Sandy klickt oder (2) der Browser idle ist
+      // ── Command Palette lazy mount ──────────────────────────────────────
+      const paletteTarget = document.getElementById("palette-mount");
+      let paletteMounted = false;
+      function mountPalette(openImmediately = false) {
+        if (paletteMounted || !paletteTarget) return Promise.resolve();
+        paletteMounted = true;
+        return import("../components/public/CommandPalette").then(({ mountCommandPalette }) => {
+          mountCommandPalette(paletteTarget);
+          if (openImmediately) requestAnimationFrame(() => window.dispatchEvent(new CustomEvent("palette:open")));
+        });
+      }
+      // Hotkey listener bevor Palette geladen ist
+      window.addEventListener("keydown", (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+          e.preventDefault();
+          if (!paletteMounted) mountPalette(true);
+          else window.dispatchEvent(new CustomEvent("palette:open"));
+        }
+      });
+      window.addEventListener("palette:open", () => { if (!paletteMounted) mountPalette(true); });
+      window.addEventListener("palette:open-with-query", (e) => {
+        if (!paletteMounted) {
+          mountPalette(false).then(() => {
+            requestAnimationFrame(() => window.dispatchEvent(new CustomEvent("palette:open-with-query", { detail: (e as CustomEvent).detail })));
+          });
+        }
+      });
+      // Im Hintergrund vorladen
+      if ("requestIdleCallback" in window) requestIdleCallback(() => mountPalette(false), { timeout: 4000 });
+      else setTimeout(() => mountPalette(false), 2000);
+
+      // ── ChatWidget lazy mount ──────────────────────────────────────────
       const target = document.getElementById("chat-mount");
       const shell = document.getElementById("sandy-trigger-shell");
       let mounted = false;
