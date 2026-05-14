@@ -5,6 +5,7 @@ import Footer from "../components/public/Footer.astro";
 import GrainOverlay from "../components/public/GrainOverlay.astro";
 import WelcomeCard from "../components/public/WelcomeCard.astro";
 import OnboardingTour from "../components/public/OnboardingTour.astro";
+import EasterEgg from "../components/public/EasterEgg.astro";
 
 interface Props {
   title: string;
@@ -88,6 +89,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://help.salesa
       <>
         <WelcomeCard />
         <OnboardingTour />
+        <EasterEgg />
       </>
     )}
     {!hideChat && (

@@ -295,5 +295,18 @@ const CATEGORY_LABEL: Record<string, string> = {
     }
     loadAiSummary();
     document.getElementById("ai-refresh")?.addEventListener("click", () => loadAiSummary(true));
+
+    // Soft-Refresh alle 60 s wenn Tab aktiv — nur Seitenneuladen, billig genug
+    let refreshTimer: number | null = null;
+    function scheduleRefresh() {
+      if (refreshTimer) clearTimeout(refreshTimer);
+      refreshTimer = window.setTimeout(() => {
+        if (!document.hidden) location.reload();
+      }, 60_000);
+    }
+    scheduleRefresh();
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) scheduleRefresh();
+    });
   </script>
 </AdminLayout>

@@ -1,0 +1,41 @@
+---
+---
+<script>
+  // Konami-Code: ↑ ↑ ↓ ↓ ← → ← → B A → kleines goldenes Konfetti
+  (function () {
+    const SEQUENCE = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
+    let pos = 0;
+    document.addEventListener("keydown", (e) => {
+      const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      if (k === SEQUENCE[pos]) {
+        pos++;
+        if (pos === SEQUENCE.length) {
+          pos = 0;
+          burstConfetti();
+        }
+      } else {
+        pos = k === SEQUENCE[0] ? 1 : 0;
+      }
+    });
+
+    function burstConfetti() {
+      const layer = document.createElement("div");
+      layer.style.cssText = "position:fixed;inset:0;pointer-events:none;z-index:200;overflow:hidden;";
+      document.body.appendChild(layer);
+      const colors = ["#BFA37C", "#D4BC95", "#E5D0A5", "#8C7754"];
+      for (let i = 0; i < 80; i++) {
+        const d = document.createElement("div");
+        const size = 6 + Math.random() * 6;
+        d.style.cssText = `position:absolute; top:-${size}px; left:${Math.random() * 100}vw; width:${size}px; height:${size}px; background:${colors[i % 4]}; border-radius:${Math.random() > 0.5 ? "50%" : "2px"}; opacity:${0.7 + Math.random() * 0.3}; transform:rotate(${Math.random() * 360}deg); animation: confetti-fall ${1.6 + Math.random() * 1.4}s cubic-bezier(0.22, 1, 0.36, 1) ${Math.random() * 0.5}s both;`;
+        layer.appendChild(d);
+      }
+      const sheet = document.createElement("style");
+      sheet.textContent = `@keyframes confetti-fall {
+        0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+      }`;
+      document.head.appendChild(sheet);
+      setTimeout(() => { layer.remove(); sheet.remove(); }, 3500);
+    }
+  })();
+</script>
