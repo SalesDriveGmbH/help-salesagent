@@ -1,13 +1,110 @@
 ---
 export const prerender = true;
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import { CATEGORIES } from "../lib/categories";
+
+const all = await getCollection("articles");
+const featured = all
+  .filter((a) => a.data.status === "complete")
+  .sort((a, b) => (a.data.faq_priority ?? 50) - (b.data.faq_priority ?? 50))
+  .slice(0, 4);
+
+function slugOf(e: typeof all[number]) {
+  return e.id.replace(/^[^/]+\//, "");
+}
 ---
 
 <BaseLayout title="Nicht gefunden">
-  <section class="mx-auto flex max-w-2xl flex-col items-start px-6 py-24">
-    <p class="text-xs uppercase tracking-[0.18em]" style="color: var(--color-gold-dim);">404</p>
-    <h1 class="h-display mt-3 text-5xl" style="color: var(--color-text-primary);">Nicht gefunden.</h1>
-    <p class="mt-4 text-base" style="color: var(--color-text-secondary);">Die Seite existiert nicht (mehr). Versuch die Startseite oder die Suche.</p>
-    <a href="/" class="btn btn-primary mt-6">Zurück zur Startseite</a>
+  <section class="mx-auto max-w-3xl px-6 pt-24 pb-24 sm:pt-32">
+    <p class="text-[11px] uppercase tracking-[0.22em]" style="color: var(--color-gold-dim);">404</p>
+    <h1 class="not-found-headline mt-4" style="color: var(--color-text-primary);">
+      Hier ist nichts<span style="color: var(--color-gold-bright);">.</span>
+    </h1>
+    <p class="mt-5 max-w-xl text-base sm:text-lg" style="color: var(--color-text-secondary); letter-spacing: -0.012em; line-height: 1.55;">
+      Die Seite existiert nicht (mehr). Versuch die Suche, schau direkt in eine Kategorie oder frag Sandy.
+    </p>
+
+    <div class="reveal reveal-delay-1 mt-8 flex flex-wrap items-center gap-3">
+      <button class="nf-cta-primary" data-search-open type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        Suchen
+        <kbd class="kbd-inline">⌘K</kbd>
+      </button>
+      <a href="/" class="btn btn-ghost">Zur Startseite</a>
+      <button class="btn btn-ghost" data-open-chat type="button">Sandy fragen</button>
+    </div>
+
+    <div class="mt-16">
+      <p class="text-xs uppercase tracking-[0.16em]" style="color: var(--color-text-tertiary);">Vielleicht hilft das</p>
+      <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {featured.map((a) => (
+          <a href={`/artikel/${a.data.category}/${slugOf(a)}`} class="card group block p-4">
+            <div class="text-xs font-mono" style="color: var(--color-text-tertiary);">{a.data.id}</div>
+            <div class="mt-1 text-sm font-medium transition-colors group-hover:text-[var(--color-gold-bright)]" style="color: var(--color-text-primary);">{a.data.title}</div>
+            {a.data.tldr && <div class="mt-1.5 text-xs" style="color: var(--color-text-secondary);">{a.data.tldr}</div>}
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <div class="mt-12">
+      <p class="text-xs uppercase tracking-[0.16em]" style="color: var(--color-text-tertiary);">Alle Themen</p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        {CATEGORIES.map((c) => (
+          <a href={`/kategorie/${c.slug}`} class="rounded-full border px-3 py-1.5 text-xs transition-colors hover:text-[var(--color-gold-bright)]" style="border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
+            {c.title}
+          </a>
+        ))}
+      </div>
+    </div>
   </section>
+
+  <style>
+    .not-found-headline {
+      font-weight: 600;
+      letter-spacing: -0.045em;
+      line-height: 0.95;
+      font-size: clamp(3rem, 9vw, 6.5rem);
+    }
+    .nf-cta-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.85rem 1.4rem;
+      border-radius: 8px;
+      background: var(--color-gold-primary);
+      color: #FFFFFF;
+      border: 1px solid var(--color-gold-primary);
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 220ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    :root:not([data-theme="light"]) .nf-cta-primary { color: #050505; }
+    .nf-cta-primary:hover {
+      background: var(--color-gold-bright);
+      border-color: var(--color-gold-bright);
+      transform: translateY(-1px);
+    }
+    .kbd-inline {
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      border: 1px solid currentColor;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      opacity: 0.7;
+    }
+  </style>
+
+  <script>
+    document.querySelectorAll("[data-search-open]").forEach((b) => {
+      b.addEventListener("click", () => window.dispatchEvent(new CustomEvent("palette:open")));
+    });
+    document.querySelectorAll("[data-open-chat]").forEach((b) => {
+      b.addEventListener("click", () => window.dispatchEvent(new CustomEvent("sandy:open")));
+    });
+  </script>
 </BaseLayout>

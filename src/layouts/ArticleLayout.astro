@@ -48,11 +48,19 @@ const readingMinutes = Math.max(1, Math.round(wordCount / 200));
             <span>{readingMinutes} Min. Lesezeit</span>
             <span>·</span>
             <span>aktualisiert {data.last_updated}</span>
-            <button class="article-bookmark" data-bookmark={data.id} aria-label="Merken" title="Merken">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-              </svg>
-            </button>
+            <div class="ml-auto flex items-center gap-1.5">
+              <button class="article-icon-btn" data-share={data.title} aria-label="Teilen" title="Teilen">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                </svg>
+              </button>
+              <button class="article-icon-btn article-bookmark" data-bookmark={data.id} aria-label="Merken" title="Merken">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                </svg>
+              </button>
+            </div>
           </div>
           <h1 class="article-headline mt-4" style="color: var(--color-text-primary);" data-pagefind-meta="title">
             {data.title}
@@ -128,12 +136,15 @@ const readingMinutes = Math.max(1, Math.round(wordCount / 200));
 
       <aside class="hidden lg:block">
         {h2Headings.length > 0 && (
-          <div class="sticky top-24">
+          <div class="sticky top-24" id="article-toc">
             <div class="text-xs uppercase tracking-[0.16em]" style="color: var(--color-text-tertiary);">Inhalt</div>
-            <ul class="mt-3 space-y-2 text-sm">
+            <ul class="mt-4 space-y-0.5 text-sm">
               {h2Headings.map((h) => (
                 <li>
-                  <a href={`#${h.slug}`} class="hover:text-[var(--color-gold-light)]" style="color: var(--color-text-secondary);">{h.text}</a>
+                  <a href={`#${h.slug}`} data-toc-link={h.slug} class="toc-link block py-1 transition-colors" style="color: var(--color-text-secondary);">
+                    <span class="toc-bar"></span>
+                    <span>{h.text}</span>
+                  </a>
                 </li>
               ))}
             </ul>
@@ -183,6 +194,37 @@ const readingMinutes = Math.max(1, Math.round(wordCount / 200));
   </script>
 
   <script>
+    // ── Scroll-Spy für Inhaltsverzeichnis ───────────────────────────────
+    const tocLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>("[data-toc-link]"));
+    if (tocLinks.length > 0) {
+      const headings = tocLinks
+        .map((link) => {
+          const id = link.dataset.tocLink!;
+          const el = document.getElementById(id);
+          return el ? { id, el, link } : null;
+        })
+        .filter(Boolean) as Array<{ id: string; el: HTMLElement; link: HTMLAnchorElement }>;
+
+      let activeId = "";
+      function setActive(id: string) {
+        if (id === activeId) return;
+        activeId = id;
+        tocLinks.forEach((l) => l.classList.toggle("is-active", l.dataset.tocLink === id));
+      }
+
+      function onScrollSpy() {
+        const offset = 120; // Header + Atem
+        let current = headings[0]?.id ?? "";
+        for (const h of headings) {
+          if (h.el.getBoundingClientRect().top - offset <= 0) current = h.id;
+          else break;
+        }
+        setActive(current);
+      }
+      window.addEventListener("scroll", onScrollSpy, { passive: true });
+      onScrollSpy();
+    }
+
     // ── Lesefortschritt-Bar ─────────────────────────────────────────────
     const bar = document.getElementById("reading-progress");
     if (bar) {
@@ -221,6 +263,39 @@ const readingMinutes = Math.max(1, Math.round(wordCount / 200));
         const next = arr.includes(id) ? arr.filter((x) => x !== id) : [id, ...arr].slice(0, 50);
         setBookmarks(next);
         sync();
+      });
+    });
+
+    // ── Share + Copy-Link ───────────────────────────────────────────────
+    function showToast(text: string) {
+      let toast = document.getElementById("share-toast");
+      if (!toast) {
+        toast = document.createElement("div");
+        toast.id = "share-toast";
+        toast.className = "share-toast";
+        document.body.appendChild(toast);
+      }
+      toast.textContent = text;
+      requestAnimationFrame(() => toast!.classList.add("is-visible"));
+      setTimeout(() => toast!.classList.remove("is-visible"), 1800);
+    }
+
+    document.querySelectorAll<HTMLElement>("[data-share]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const title = btn.dataset.share ?? document.title;
+        const url = window.location.href;
+        // Native share auf Mobile
+        if (navigator.share && /Mobi|Android|iPhone/i.test(navigator.userAgent)) {
+          try { await navigator.share({ title, url }); return; } catch { /* user canceled */ }
+        }
+        try {
+          await navigator.clipboard.writeText(url);
+          btn.classList.add("is-flash");
+          setTimeout(() => btn.classList.remove("is-flash"), 800);
+          showToast("Link kopiert");
+        } catch {
+          showToast("Kopieren fehlgeschlagen — manuell aus der Adresszeile");
+        }
       });
     });
 
@@ -276,31 +351,86 @@ const readingMinutes = Math.max(1, Math.round(wordCount / 200));
       line-height: 1.05;
       font-size: clamp(2.25rem, 5.5vw, 3.75rem);
     }
-    .article-bookmark {
-      margin-left: auto;
+    .article-icon-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      height: 26px;
-      width: 26px;
+      height: 28px;
+      width: 28px;
       border-radius: 6px;
       border: 1px solid var(--color-border-subtle);
       background: transparent;
       color: var(--color-text-tertiary);
       cursor: pointer;
-      transition: all 180ms ease;
+      transition: all 200ms cubic-bezier(0.22, 1, 0.36, 1);
     }
-    .article-bookmark:hover {
+    .article-icon-btn:hover {
       color: var(--color-gold-bright);
       border-color: var(--color-border-default);
+      transform: translateY(-1px);
     }
     .article-bookmark.is-active {
       color: var(--color-gold-bright);
       border-color: var(--color-gold-primary);
       background: color-mix(in srgb, var(--color-gold-primary) 12%, transparent);
     }
-    .article-bookmark.is-active svg {
-      fill: currentColor;
+    .article-bookmark.is-active svg { fill: currentColor; }
+    .article-icon-btn.is-flash {
+      color: var(--color-gold-bright);
+      border-color: var(--color-gold-primary);
+      background: color-mix(in srgb, var(--color-gold-primary) 18%, transparent);
+    }
+    .share-toast {
+      position: fixed;
+      left: 50%;
+      bottom: 32px;
+      transform: translateX(-50%) translateY(20px);
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--color-bg-elevated) 96%, transparent);
+      border: 1px solid var(--color-border-default);
+      color: var(--color-text-primary);
+      font-size: 0.85rem;
+      box-shadow: 0 12px 36px -10px rgba(0,0,0,0.4);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 55;
+      transition: opacity 220ms ease, transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .share-toast.is-visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Scroll-Spy TOC */
+    .toc-link {
+      position: relative;
+      padding-left: 14px;
+      letter-spacing: -0.005em;
+      transition: color 240ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .toc-link .toc-bar {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%) scaleY(0.4);
+      transform-origin: 50% 50%;
+      width: 2px;
+      height: 16px;
+      background: var(--color-border-default);
+      border-radius: 2px;
+      transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+                  background 280ms ease;
+    }
+    .toc-link:hover { color: var(--color-gold-bright); }
+    .toc-link:hover .toc-bar { background: var(--color-gold-dim); transform: translateY(-50%) scaleY(0.7); }
+    .toc-link.is-active {
+      color: var(--color-text-primary);
+      font-weight: 500;
+    }
+    .toc-link.is-active .toc-bar {
+      background: var(--color-gold-primary);
+      transform: translateY(-50%) scaleY(1.1);
     }
   </style>
 </BaseLayout>

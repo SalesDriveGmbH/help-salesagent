@@ -21,22 +21,30 @@ const articles = (await getCollection("articles"))
 function slugOf(entry: typeof articles[number]) {
   return entry.id.replace(/^[^/]+\//, "");
 }
+
+const completeCount = articles.filter((a) => a.data.status === "complete").length;
 ---
 
-<BaseLayout title={`${meta.title}`} description={meta.description}>
-  <section class="mx-auto max-w-6xl px-6 pt-12 pb-16">
-    <nav class="mb-6 flex items-center gap-2 text-xs" style="color: var(--color-text-tertiary);">
-      <a href="/" class="hover:text-[var(--color-gold-light)]">Hilfe</a>
+<BaseLayout title={meta.title} description={meta.description}>
+  <section class="mx-auto max-w-6xl px-6 pt-20 pb-20 sm:pt-28">
+    <nav class="mb-8 flex items-center gap-2 text-xs" style="color: var(--color-text-tertiary);">
+      <a href="/" class="hover:text-[var(--color-gold-bright)]">Hilfe</a>
       <span>/</span>
       <span style="color: var(--color-text-secondary);">{meta.title}</span>
     </nav>
 
-    <header class="reveal max-w-2xl">
-      <h1 class="h-display text-4xl sm:text-5xl" style="color: var(--color-text-primary);">{meta.title}</h1>
-      <p class="mt-4 text-base" style="color: var(--color-text-secondary);">{meta.description}</p>
+    <header class="reveal max-w-3xl">
+      <p class="text-[11px] uppercase tracking-[0.22em]" style="color: var(--color-gold-dim);">Kategorie · {articles.length} Artikel</p>
+      <h1 class="category-headline mt-4" style="color: var(--color-text-primary);">{meta.title}<span style="color: var(--color-gold-bright);">.</span></h1>
+      <p class="mt-5 max-w-xl text-base sm:text-lg" style="color: var(--color-text-secondary); letter-spacing: -0.012em; line-height: 1.55;">
+        {meta.description}
+      </p>
+      <p class="mt-4 text-xs" style="color: var(--color-text-tertiary);">
+        {completeCount} vollständig · {articles.length - completeCount} in Bearbeitung
+      </p>
     </header>
 
-    <div class="reveal reveal-delay-1 mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="reveal reveal-delay-1 mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {articles.map((a) => (
         <ArticleCard
           href={`/artikel/${a.data.category}/${slugOf(a)}`}
@@ -48,4 +56,13 @@ function slugOf(entry: typeof articles[number]) {
       ))}
     </div>
   </section>
+
+  <style>
+    .category-headline {
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      font-size: clamp(2.75rem, 8vw, 5.5rem);
+    }
+  </style>
 </BaseLayout>

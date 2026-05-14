@@ -73,6 +73,26 @@ const fullTitle = title.includes("SalesAgent Hilfe") ? title : `${title} — Sal
         <div id="chat-mount" data-chat-widget></div>
       </>
     )}
+    <script is:inline>
+      // ── Aurora folgt subtil der Maus ─────────────────────────────────
+      (function () {
+        const aurora = document.querySelector(".aurora");
+        if (!aurora || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        let pending = false;
+        window.addEventListener("pointermove", (e) => {
+          if (pending) return;
+          pending = true;
+          requestAnimationFrame(() => {
+            const mx = e.clientX / window.innerWidth;
+            const my = e.clientY / window.innerHeight;
+            aurora.style.setProperty("--mx", String(mx));
+            aurora.style.setProperty("--my", String(my));
+            pending = false;
+          });
+        }, { passive: true });
+      })();
+    </script>
+
     <script>
       // ── Command Palette lazy mount ──────────────────────────────────────
       const paletteTarget = document.getElementById("palette-mount");
