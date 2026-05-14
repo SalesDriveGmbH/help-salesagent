@@ -62,13 +62,17 @@ export async function createIntercomConversation(params: {
   if (!searchRes.ok) throw new Error(`Intercom contact search: ${searchRes.status} ${await searchRes.text()}`);
   const found = (await searchRes.json()) as any;
 
+  // Phone nur dann mitsenden, wenn nicht leer/whitespace — Intercom validiert sonst zu hart
+  const phoneTrimmed = (params.phone ?? "").trim();
+  const phoneField = phoneTrimmed ? { phone: phoneTrimmed } : {};
+
   let contactId: string;
   if (found.data?.length > 0) {
     contactId = found.data[0].id;
     await fetch(`${BASE}/contacts/${contactId}`, {
       method: "PUT",
       headers: headers(),
-      body: JSON.stringify({ name: params.name, phone: params.phone }),
+      body: JSON.stringify({ name: params.name, ...phoneField }),
     });
   } else {
     const createRes = await fetch(`${BASE}/contacts`, {
@@ -78,7 +82,7 @@ export async function createIntercomConversation(params: {
         role: "user",
         name: params.name,
         email: params.email,
-        phone: params.phone,
+        ...phoneField,
       }),
     });
     if (!createRes.ok) throw new Error(`Intercom contact create: ${createRes.status} ${await createRes.text()}`);
