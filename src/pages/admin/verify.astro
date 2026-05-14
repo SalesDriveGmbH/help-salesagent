@@ -1,0 +1,37 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import { consumeMagicToken } from "../../lib/magic-link";
+import { createSession, setSessionCookie, isEmailAllowed } from "../../lib/auth";
+
+const token = Astro.url.searchParams.get("token");
+let error: string | null = null;
+
+if (!token) {
+  error = "Kein Token übergeben.";
+} else {
+  const email = await consumeMagicToken(token);
+  if (!email) {
+    error = "Der Link ist ungültig oder abgelaufen.";
+  } else if (!isEmailAllowed(email)) {
+    error = "Diese Email ist nicht autorisiert.";
+  } else {
+    const sessionToken = await createSession(email);
+    setSessionCookie(Astro.cookies, sessionToken);
+    return Astro.redirect("/admin");
+  }
+}
+---
+
+<AdminLayout title="Verifizierung" hideHeader>
+  <section class="mx-auto flex min-h-[60vh] max-w-md flex-col items-stretch justify-center px-6 py-16">
+    <div class="flex items-center gap-3">
+      <img src="/logo.png" alt="SalesAgent" style="height: 32px; width: auto;" />
+      <span class="text-xs uppercase tracking-[0.18em]" style="color: var(--color-gold-primary);">Admin</span>
+    </div>
+
+    <h1 class="h-display mt-8 text-3xl" style="color: var(--color-text-primary);">Login fehlgeschlagen.</h1>
+    <p class="mt-2 text-sm" style="color: var(--color-text-secondary);">{error}</p>
+
+    <a href="/admin/login" class="btn btn-primary mt-8">Erneut versuchen</a>
+  </section>
+</AdminLayout>

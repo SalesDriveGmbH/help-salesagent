@@ -1,0 +1,26 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AdminDashboard from "../../components/admin/AdminDashboard";
+import { CATEGORIES } from "../../lib/categories";
+import { listAllArticleSummaries } from "../../lib/knowledge";
+
+const articles = await listAllArticleSummaries();
+---
+
+<AdminLayout title="Dashboard">
+  <section class="mx-auto max-w-7xl px-6 pt-8 pb-24">
+    <header class="mb-8">
+      <p class="text-xs uppercase tracking-[0.18em]" style="color: var(--color-gold-dim);">Admin Dashboard</p>
+      <h1 class="h-display mt-2 text-3xl" style="color: var(--color-text-primary);">Knowledge Base verwalten.</h1>
+      <p class="mt-2 max-w-2xl text-sm" style="color: var(--color-text-secondary);">
+        Neue Infos einspielen, aus geschlossenen Intercom-Tickets lernen, Drafts reviewen, Artikel direkt editieren.
+      </p>
+    </header>
+
+    <AdminDashboard
+      client:load
+      categories={CATEGORIES}
+      articles={articles}
+    />
+  </section>
+</AdminLayout>

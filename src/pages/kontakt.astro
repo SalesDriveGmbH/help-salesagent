@@ -1,0 +1,58 @@
+---
+export const prerender = true;
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Kontakt" description="Kontaktiere den SalesDrive Support — per Email, Telefon oder Chat.">
+  <section class="mx-auto max-w-3xl px-6 pt-16 pb-24">
+    <nav class="mb-6 flex items-center gap-2 text-xs" style="color: var(--color-text-tertiary);">
+      <a href="/" class="hover:text-[var(--color-gold-light)]">Hilfe</a>
+      <span>/</span>
+      <span style="color: var(--color-text-secondary);">Kontakt</span>
+    </nav>
+
+    <header class="reveal">
+      <h1 class="h-display text-4xl sm:text-5xl" style="color: var(--color-text-primary);">Kontakt zum Support</h1>
+      <p class="mt-4 max-w-xl text-base" style="color: var(--color-text-secondary);">
+        Frag zuerst Sandy — sie löst die meisten Anliegen sofort. Wenn nicht: schreib uns direkt, wir melden uns innerhalb von 24 h an Werktagen.
+      </p>
+    </header>
+
+    <div class="reveal reveal-delay-1 mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div class="card p-6">
+        <h3 class="text-base font-semibold" style="color: var(--color-text-primary);">Abrechnungs-Einwände</h3>
+        <p class="mt-2 text-sm" style="color: var(--color-text-secondary);">Frist 5 Werktage nach Zustellung der Abrechnung.</p>
+        <a href="mailto:accounting@salesdrive.at" class="mt-4 inline-block text-sm font-mono" style="color: var(--color-gold-light);">accounting@salesdrive.at</a>
+      </div>
+      <div class="card p-6">
+        <h3 class="text-base font-semibold" style="color: var(--color-text-primary);">Allgemeine Anliegen</h3>
+        <p class="mt-2 text-sm" style="color: var(--color-text-secondary);">Vertrag, Onboarding, Tools, alles andere.</p>
+        <a href="mailto:office@salesdrive.at" class="mt-4 inline-block text-sm font-mono" style="color: var(--color-gold-light);">office@salesdrive.at</a>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-2 mt-6 card p-6">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h3 class="text-base font-semibold" style="color: var(--color-text-primary);">Telefon</h3>
+          <p class="mt-1 text-sm" style="color: var(--color-text-secondary);">Mo–Fr 09:00–17:00 CET</p>
+        </div>
+        <a href="tel:+436767951018" class="font-mono text-base" style="color: var(--color-gold-light);">+43 676 7951018</a>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-3 mt-10 flex flex-col items-start gap-4 rounded-xl border p-6" style="border-color: var(--color-border-default); background: rgba(191, 163, 124, 0.04);">
+      <div>
+        <h3 class="text-base font-semibold" style="color: var(--color-text-primary);">Sofort-Hilfe im Chat</h3>
+        <p class="mt-1 text-sm" style="color: var(--color-text-secondary);">Sandy beantwortet Fragen 24/7. Bei Bedarf eskaliert sie an unser Team.</p>
+      </div>
+      <button class="btn btn-primary" data-open-chat type="button">Chat öffnen</button>
+    </div>
+  </section>
+
+  <script>
+    document.querySelectorAll("[data-open-chat]").forEach((b) => {
+      b.addEventListener("click", () => window.dispatchEvent(new CustomEvent("sandy:open")));
+    });
+  </script>
+</BaseLayout>

@@ -1,0 +1,21 @@
+---
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
+import { getCollection } from "astro:content";
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const all = await getCollection("articles");
+  return all.map((entry) => {
+    const slug = entry.id.replace(/^[^/]+\//, "");
+    return {
+      params: { slug: `${entry.data.category}/${slug}` },
+      props: { entry },
+    };
+  });
+}
+
+const { entry } = Astro.props;
+---
+
+<ArticleLayout entry={entry} />

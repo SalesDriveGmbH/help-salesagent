@@ -1,0 +1,33 @@
+---
+import "../styles/global.css";
+import AdminHeader from "../components/admin/AdminHeader.astro";
+import GrainOverlay from "../components/public/GrainOverlay.astro";
+
+interface Props {
+  title: string;
+  hideHeader?: boolean;
+}
+
+const { title, hideHeader = false } = Astro.props;
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title} — Admin · SalesAgent Hilfe</title>
+  </head>
+  <body class="relative">
+    <div class="aurora" aria-hidden="true"></div>
+    <GrainOverlay />
+    <div class="relative z-10 flex min-h-screen flex-col">
+      {!hideHeader && <AdminHeader />}
+      <main class="flex-1">
+        <slot />
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,41 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+const sent = Astro.url.searchParams.get("sent") === "1";
+const denied = Astro.url.searchParams.get("denied") === "1";
+---
+
+<AdminLayout title="Login" hideHeader>
+  <section class="mx-auto flex min-h-[80vh] max-w-md flex-col items-stretch justify-center px-6 py-16">
+    <div class="flex items-center gap-3">
+      <img src="/logo.png" alt="SalesAgent" style="height: 32px; width: auto;" />
+      <span class="text-xs uppercase tracking-[0.18em]" style="color: var(--color-gold-primary);">Admin</span>
+    </div>
+
+    <h1 class="h-display mt-8 text-3xl" style="color: var(--color-text-primary);">Anmelden.</h1>
+    <p class="mt-2 text-sm" style="color: var(--color-text-secondary);">
+      Wir senden dir einen Magic-Link. Nur Admins der Allow-List haben Zugriff.
+    </p>
+
+    {sent && (
+      <div class="mt-6 rounded-lg border p-4 text-sm" style="border-color: rgba(157,217,168,0.30); background: rgba(157,217,168,0.06); color: #9DD9A8;">
+        Falls deine Adresse auf der Allow-List steht, ist eine Email mit dem Login-Link unterwegs. Schau auch in den Spam-Ordner.
+      </div>
+    )}
+
+    {denied && (
+      <div class="mt-6 rounded-lg border p-4 text-sm" style="border-color: rgba(227,166,106,0.30); background: rgba(227,166,106,0.05); color: #E3A66A;">
+        Die Anfrage konnte nicht verarbeitet werden. Versuch es erneut.
+      </div>
+    )}
+
+    <form method="post" action="/api/admin/login" class="mt-8 space-y-4">
+      <div>
+        <label class="mb-1 block text-xs" style="color: var(--color-text-tertiary);" for="email">Email</label>
+        <input id="email" name="email" type="email" required class="input" autocomplete="email" placeholder="dein.name@salesdrive.at" />
+      </div>
+      <button type="submit" class="btn btn-primary w-full">Magic-Link anfordern</button>
+    </form>
+
+    <a href="/" class="mt-8 text-xs" style="color: var(--color-text-tertiary);">← Zurück zum Hilfebereich</a>
+  </section>
+</AdminLayout>

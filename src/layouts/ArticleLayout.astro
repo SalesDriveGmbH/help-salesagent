@@ -1,0 +1,154 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import StatusBadge from "../components/public/StatusBadge.astro";
+import { getCategory } from "../lib/categories";
+import { getCollection, render } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  entry: CollectionEntry<"articles">;
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+const data = entry.data;
+const category = getCategory(data.category);
+
+const all = await getCollection("articles");
+const related = (data.related ?? [])
+  .map((id) => all.find((a) => a.data.id === id))
+  .filter(Boolean) as CollectionEntry<"articles">[];
+
+const h2Headings = headings.filter((h) => h.depth === 2);
+---
+
+<BaseLayout title={data.title} description={data.tldr ?? data.title}>
+  <article class="mx-auto max-w-6xl px-6 pb-24 pt-10">
+    <nav class="mb-8 flex items-center gap-2 text-xs" style="color: var(--color-text-tertiary);" aria-label="Breadcrumbs">
+      <a href="/" class="hover:text-[var(--color-gold-light)]">Hilfe</a>
+      <span>/</span>
+      <a href={`/kategorie/${data.category}`} class="hover:text-[var(--color-gold-light)]">{category?.title}</a>
+      <span>/</span>
+      <span style="color: var(--color-text-secondary);">{data.id}</span>
+    </nav>
+
+    <div class="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_220px]">
+      <div class="min-w-0">
+        <header class="reveal">
+          <div class="flex flex-wrap items-center gap-3 text-xs" style="color: var(--color-text-tertiary);">
+            <span class="font-mono">{data.id}</span>
+            <StatusBadge status={data.status} />
+            <span>· aktualisiert am {data.last_updated}</span>
+          </div>
+          <h1 class="h-display mt-3 text-4xl sm:text-5xl" style="color: var(--color-text-primary);" data-pagefind-meta="title">
+            {data.title}
+          </h1>
+          {data.tldr && (
+            <p class="mt-4 max-w-2xl text-base" style="color: var(--color-text-secondary);">
+              {data.tldr}
+            </p>
+          )}
+        </header>
+
+        {data.status !== "complete" && (
+          <aside class="mt-8 rounded-xl border p-5" style="border-color: var(--color-border-default); background: rgba(191, 163, 124, 0.05);">
+            <div class="flex items-start gap-3">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-gold-bright); margin-top: 2px;">
+                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              <div class="flex-1 text-sm">
+                <strong style="color: var(--color-gold-bright);">
+                  {data.status === "partial" ? "Dieser Artikel ist noch in Bearbeitung." : "Dieser Artikel wird gerade erstellt."}
+                </strong>
+                <p class="mt-1" style="color: var(--color-text-secondary);">
+                  Einzelne Angaben werden noch finalisiert. Bei dringenden Fragen direkt im Chat eskalieren oder an
+                  <a href={`mailto:${data.escalate_to ?? "office@salesdrive.at"}`} class="underline" style="color: var(--color-gold-light);">{data.escalate_to ?? "office@salesdrive.at"}</a> schreiben.
+                </p>
+                <button data-open-chat class="btn btn-ghost mt-3" type="button">
+                  Mit Sandy chatten
+                </button>
+              </div>
+            </div>
+          </aside>
+        )}
+
+        <div
+          class="prose-gold mt-10"
+          data-pagefind-body
+        >
+          <Content />
+        </div>
+
+        <section class="mt-14 rounded-xl border p-5" style="border-color: var(--color-border-subtle); background: rgba(14, 14, 14, 0.5);">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <p class="text-sm" style="color: var(--color-text-secondary);">War dieser Artikel hilfreich?</p>
+            <div class="flex gap-2">
+              <button class="btn btn-ghost" data-feedback="yes" type="button">Ja</button>
+              <button class="btn btn-ghost" data-feedback="no" type="button">Nein</button>
+            </div>
+          </div>
+          <div id="feedback-msg" class="mt-3 hidden text-sm" style="color: var(--color-gold-light);"></div>
+        </section>
+
+        {related.length > 0 && (
+          <section class="mt-14">
+            <h2 class="h-display text-xl" style="color: var(--color-text-primary); letter-spacing: -0.03em;">
+              Verwandte Artikel
+            </h2>
+            <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {related.slice(0, 4).map((r) => {
+                const slug = r.id.replace(/^[^/]+\//, "");
+                return (
+                  <a href={`/artikel/${r.data.category}/${slug}`} class="card group block p-4 transition-transform hover:translate-y-[-1px]">
+                    <div class="text-xs" style="color: var(--color-text-tertiary);">{r.data.id}</div>
+                    <div class="mt-1 text-sm font-medium transition-colors group-hover:text-[var(--color-gold-light)]" style="color: var(--color-text-primary);">{r.data.title}</div>
+                  </a>
+                );
+              })}
+            </div>
+          </section>
+        )}
+      </div>
+
+      <aside class="hidden lg:block">
+        {h2Headings.length > 0 && (
+          <div class="sticky top-24">
+            <div class="text-xs uppercase tracking-[0.16em]" style="color: var(--color-text-tertiary);">Inhalt</div>
+            <ul class="mt-3 space-y-2 text-sm">
+              {h2Headings.map((h) => (
+                <li>
+                  <a href={`#${h.slug}`} class="hover:text-[var(--color-gold-light)]" style="color: var(--color-text-secondary);">{h.text}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </aside>
+    </div>
+  </article>
+
+  <script>
+    document.querySelectorAll("[data-feedback]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const value = (btn as HTMLElement).dataset.feedback;
+        const msg = document.getElementById("feedback-msg")!;
+        msg.classList.remove("hidden");
+        if (value === "yes") {
+          msg.textContent = "Danke für dein Feedback.";
+        } else {
+          msg.innerHTML = `Schade — <a href="#" data-open-chat class="underline">frag Sandy im Chat</a> oder schreib uns an <a href="mailto:office@salesdrive.at" class="underline">office@salesdrive.at</a>.`;
+        }
+      });
+    });
+
+    document.addEventListener("click", (e) => {
+      const t = e.target as HTMLElement;
+      if (t.closest("[data-open-chat]")) {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent("sandy:open"));
+      }
+    });
+  </script>
+</BaseLayout>

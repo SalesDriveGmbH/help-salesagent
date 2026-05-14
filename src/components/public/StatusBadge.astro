@@ -1,0 +1,22 @@
+---
+interface Props {
+  status: "complete" | "partial" | "todo";
+}
+const { status } = Astro.props;
+
+const label: Record<Props["status"], string> = {
+  complete: "Vollständig",
+  partial: "In Bearbeitung",
+  todo: "Wird ergänzt",
+};
+const cls: Record<Props["status"], string> = {
+  complete: "badge badge-complete",
+  partial: "badge badge-partial",
+  todo: "badge badge-todo",
+};
+---
+
+<span class={cls[status]}>
+  <span class="inline-block h-1.5 w-1.5 rounded-full" style={`background: currentColor`}></span>
+  {label[status]}
+</span>

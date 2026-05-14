@@ -1,0 +1,51 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ArticleCard from "../../components/public/ArticleCard.astro";
+import { CATEGORIES, getCategory } from "../../lib/categories";
+import { getCollection } from "astro:content";
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  return CATEGORIES.map((c) => ({ params: { category: c.slug } }));
+}
+
+const { category } = Astro.params;
+const meta = getCategory(category!);
+if (!meta) throw new Error("Unknown category");
+
+const articles = (await getCollection("articles"))
+  .filter((a) => a.data.category === category)
+  .sort((a, b) => (a.data.faq_priority ?? 50) - (b.data.faq_priority ?? 50));
+
+function slugOf(entry: typeof articles[number]) {
+  return entry.id.replace(/^[^/]+\//, "");
+}
+---
+
+<BaseLayout title={`${meta.title}`} description={meta.description}>
+  <section class="mx-auto max-w-6xl px-6 pt-12 pb-16">
+    <nav class="mb-6 flex items-center gap-2 text-xs" style="color: var(--color-text-tertiary);">
+      <a href="/" class="hover:text-[var(--color-gold-light)]">Hilfe</a>
+      <span>/</span>
+      <span style="color: var(--color-text-secondary);">{meta.title}</span>
+    </nav>
+
+    <header class="reveal max-w-2xl">
+      <h1 class="h-display text-4xl sm:text-5xl" style="color: var(--color-text-primary);">{meta.title}</h1>
+      <p class="mt-4 text-base" style="color: var(--color-text-secondary);">{meta.description}</p>
+    </header>
+
+    <div class="reveal reveal-delay-1 mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {articles.map((a) => (
+        <ArticleCard
+          href={`/artikel/${a.data.category}/${slugOf(a)}`}
+          id={a.data.id}
+          title={a.data.title}
+          tldr={a.data.tldr}
+          status={a.data.status}
+        />
+      ))}
+    </div>
+  </section>
+</BaseLayout>

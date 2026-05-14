@@ -1,0 +1,13 @@
+---
+export const prerender = true;
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Nicht gefunden">
+  <section class="mx-auto flex max-w-2xl flex-col items-start px-6 py-24">
+    <p class="text-xs uppercase tracking-[0.18em]" style="color: var(--color-gold-dim);">404</p>
+    <h1 class="h-display mt-3 text-5xl" style="color: var(--color-text-primary);">Nicht gefunden.</h1>
+    <p class="mt-4 text-base" style="color: var(--color-text-secondary);">Die Seite existiert nicht (mehr). Versuch die Startseite oder die Suche.</p>
+    <a href="/" class="btn btn-primary mt-6">Zurück zur Startseite</a>
+  </section>
+</BaseLayout>

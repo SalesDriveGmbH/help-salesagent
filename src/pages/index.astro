@@ -1,0 +1,85 @@
+---
+export const prerender = true;
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SearchBar from "../components/public/SearchBar.astro";
+import CategoryGrid from "../components/public/CategoryGrid.astro";
+import ArticleCard from "../components/public/ArticleCard.astro";
+import { getCollection } from "astro:content";
+
+const all = await getCollection("articles");
+const FEATURED_IDS = ["A01", "A02", "A03"];
+const featured = FEATURED_IDS
+  .map((id) => all.find((a) => a.data.id === id))
+  .filter(Boolean) as typeof all;
+
+function slugOf(entry: typeof all[number]) {
+  return entry.id.replace(/^[^/]+\//, "");
+}
+---
+
+<BaseLayout title="Hilfe & Antworten — SalesAgent" description="Hilfebereich für SalesAgents von SalesDrive. Antworten zu Abrechnung, Onboarding, Verträgen und Tools.">
+  <section class="relative mx-auto max-w-6xl px-6 pt-16 pb-12 sm:pt-24 sm:pb-16">
+    <div class="reveal max-w-3xl">
+      <p class="text-xs uppercase tracking-[0.18em]" style="color: var(--color-gold-dim);">SalesAgent · Hilfebereich</p>
+      <h1 class="h-display mt-3 text-5xl sm:text-7xl" style="color: var(--color-text-primary);">
+        Hilfe<span style="color: var(--color-gold-bright);">.</span><br />Und Antworten<span style="color: var(--color-gold-bright);">.</span>
+      </h1>
+      <p class="mt-6 max-w-xl text-base sm:text-lg" style="color: var(--color-text-secondary);">
+        Alles, was du als SalesAgent wissen musst — Abrechnung, Onboarding, Tools, Vertrag. Such direkt oder frag Sandy.
+      </p>
+    </div>
+
+    <div class="reveal reveal-delay-1 mt-10 max-w-2xl">
+      <SearchBar size="lg" />
+    </div>
+
+    <div class="reveal reveal-delay-2 mt-3 flex flex-wrap items-center gap-2 text-xs" style="color: var(--color-text-tertiary);">
+      <span>Beliebt:</span>
+      {["Auszahlung", "Konversionsrate", "Kontoblatt", "Einsendeschluss"].map((q) => (
+        <button class="rounded-full border px-2.5 py-1 hover:text-[var(--color-gold-light)]" style="border-color: var(--color-border-subtle);" data-quick={q} type="button">{q}</button>
+      ))}
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-6 pb-16">
+    <div class="mb-6 flex items-baseline justify-between">
+      <h2 class="h-display text-xl" style="color: var(--color-text-primary); letter-spacing: -0.03em;">Häufig gesucht</h2>
+      <span class="text-xs" style="color: var(--color-text-tertiary);">Top-Themen Abrechnung</span>
+    </div>
+    <div class="reveal reveal-delay-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      {featured.map((a) => (
+        <ArticleCard
+          href={`/artikel/${a.data.category}/${slugOf(a)}`}
+          id={a.data.id}
+          title={a.data.title}
+          tldr={a.data.tldr}
+          status={a.data.status}
+        />
+      ))}
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-6 pb-24">
+    <div class="mb-6 flex items-baseline justify-between">
+      <h2 class="h-display text-xl" style="color: var(--color-text-primary); letter-spacing: -0.03em;">Themen-Kategorien</h2>
+      <a href="/kontakt" class="text-xs hover:text-[var(--color-gold-light)]" style="color: var(--color-text-tertiary);">Kontakt zum Support</a>
+    </div>
+    <div class="reveal reveal-delay-4">
+      <CategoryGrid />
+    </div>
+  </section>
+
+  <script>
+    document.querySelectorAll("[data-quick]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const q = (btn as HTMLElement).dataset.quick ?? "";
+        const input = document.getElementById("kb-search") as HTMLInputElement | null;
+        if (input) {
+          input.value = q;
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+          input.focus();
+        }
+      });
+    });
+  </script>
+</BaseLayout>

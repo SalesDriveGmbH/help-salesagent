@@ -1,0 +1,109 @@
+---
+interface Props {
+  size?: "lg" | "md";
+  placeholder?: string;
+}
+
+const { size = "md", placeholder = "Was möchtest du wissen?" } = Astro.props;
+const inputClass = size === "lg"
+  ? "h-14 text-base sm:text-lg"
+  : "h-11 text-sm";
+---
+
+<div class="relative w-full">
+  <label class="sr-only" for="kb-search">Suche</label>
+  <svg class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2" style="color: var(--color-text-tertiary);" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="11" cy="11" r="7"></circle>
+    <path d="m21 21-4.35-4.35"></path>
+  </svg>
+  <input
+    type="search"
+    id="kb-search"
+    placeholder={placeholder}
+    autocomplete="off"
+    class={`input pl-11 pr-20 ${inputClass}`}
+  />
+  <kbd class="absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-md border px-1.5 py-0.5 text-[11px] font-medium sm:inline-flex" style="color: var(--color-text-tertiary); border-color: var(--color-border-default);">⌘K</kbd>
+</div>
+
+<div id="kb-search-results" class="mt-4 hidden"></div>
+
+<script>
+  // Search-Logik mit Pagefind (gebaut zur Build-Zeit unter /pagefind/)
+  const input = document.getElementById("kb-search") as HTMLInputElement | null;
+  const results = document.getElementById("kb-search-results");
+
+  if (input && results) {
+    let pagefind: any = null;
+    let loadingPromise: Promise<any> | null = null;
+
+    async function loadPagefind() {
+      if (pagefind) return pagefind;
+      if (loadingPromise) return loadingPromise;
+      loadingPromise = (async () => {
+        try {
+          // @ts-ignore
+          pagefind = await import("/pagefind/pagefind.js");
+          await pagefind.options({});
+          return pagefind;
+        } catch (e) {
+          console.warn("Pagefind nicht verfügbar:", e);
+          return null;
+        }
+      })();
+      return loadingPromise;
+    }
+
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    input.addEventListener("input", () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      const q = input.value.trim();
+      if (q.length < 2) {
+        results.classList.add("hidden");
+        results.innerHTML = "";
+        return;
+      }
+      debounceTimer = setTimeout(async () => {
+        const pf = await loadPagefind();
+        if (!pf) {
+          results.classList.remove("hidden");
+          results.innerHTML = `<div class="card p-4 text-sm" style="color: var(--color-text-secondary);">Suche wird vorbereitet …</div>`;
+          return;
+        }
+        const search = await pf.search(q);
+        if (!search.results.length) {
+          results.classList.remove("hidden");
+          results.innerHTML = `<div class="card p-4 text-sm" style="color: var(--color-text-secondary);">Keine Treffer für „${q}". <a href="#" data-open-chat class="underline" style="color: var(--color-gold-light);">Frag Sandy im Chat</a>.</div>`;
+          return;
+        }
+        const items = await Promise.all(search.results.slice(0, 6).map((r: any) => r.data()));
+        results.classList.remove("hidden");
+        results.innerHTML = items.map((item: any) => `
+          <a href="${item.url}" class="card mb-2 block p-4 transition-colors hover:translate-y-[-1px]">
+            <div class="text-sm font-semibold" style="color: var(--color-text-primary);">${item.meta?.title ?? item.url}</div>
+            <div class="mt-1 text-xs" style="color: var(--color-text-secondary);">${item.excerpt}</div>
+          </a>
+        `).join("");
+      }, 160);
+    });
+
+    // ⌘K Shortcut
+    document.addEventListener("keydown", (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        input.focus();
+        input.select();
+      }
+    });
+
+    // Chat öffnen via Link in Suchergebnis
+    document.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+      if (target.closest("[data-open-chat]")) {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent("sandy:open"));
+      }
+    });
+  }
+</script>
