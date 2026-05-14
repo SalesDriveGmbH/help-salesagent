@@ -44,16 +44,18 @@ const completeCount = articles.filter((a) => a.data.status === "complete").lengt
       </p>
     </header>
 
-    <div class="reveal reveal-delay-1 mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {articles.map((a) => (
-        <ArticleCard
-          href={`/artikel/${a.data.category}/${slugOf(a)}`}
-          id={a.data.id}
-          title={a.data.title}
-          tldr={a.data.tldr}
-          status={a.data.status}
-          lastUpdated={a.data.last_updated}
-        />
+    <div class="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {articles.map((a, i) => (
+        <div data-reveal style={`transition-delay: ${Math.min(i * 40, 360)}ms;`}>
+          <ArticleCard
+            href={`/artikel/${a.data.category}/${slugOf(a)}`}
+            id={a.data.id}
+            title={a.data.title}
+            tldr={a.data.tldr}
+            status={a.data.status}
+            lastUpdated={a.data.last_updated}
+          />
+        </div>
       ))}
     </div>
   </section>

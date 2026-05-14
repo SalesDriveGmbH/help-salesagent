@@ -242,6 +242,40 @@ export default function Library({ categories, articles, onReview: _onReview }: {
               articles={articles}
             />
 
+            {mode === "new" && article && (
+              <div className="mt-4 flex items-center justify-between gap-3 rounded-md border p-3" style={{ borderColor: "var(--color-border-subtle)", background: "color-mix(in srgb, var(--color-gold-primary) 4%, transparent)" }}>
+                <div className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
+                  Sandy kann einen ersten Inhalt vorschlagen — Titel oben festlegen, dann ein Klick.
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  disabled={busy || !article.frontmatter.title.trim()}
+                  onClick={async () => {
+                    setBusy(true);
+                    setFeedback(null);
+                    try {
+                      const res = await fetch("/api/admin/library-suggest", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ title: article.frontmatter.title, category: article.frontmatter.category }),
+                      });
+                      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                      const data = await res.json();
+                      if (data.body) setArticle({ ...article, body: data.body });
+                      setFeedback("Vorschlag eingefügt — du kannst ihn jetzt anpassen.");
+                    } catch (e: any) {
+                      setFeedback("Vorschlag fehlgeschlagen: " + e.message);
+                    } finally {
+                      setBusy(false);
+                    }
+                  }}
+                >
+                  {busy ? "Sandy denkt …" : "✨ Inhalt vorschlagen"}
+                </button>
+              </div>
+            )}
+
             <div className="mt-6">
               {mode === "read" ? (
                 <pre className="whitespace-pre-wrap text-sm" style={{ color: "var(--color-text-secondary)", fontFamily: "var(--font-mono)", lineHeight: 1.65 }}>{article.body}</pre>

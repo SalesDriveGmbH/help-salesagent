@@ -291,6 +291,22 @@ body {
 .reveal-delay-3 { animation-delay: 270ms; }
 .reveal-delay-4 { animation-delay: 360ms; }
 
+/* Scroll-Reveal (über data-reveal Attribute) — kommt erst per IntersectionObserver in den Viewport */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] { opacity: 1; transform: none; transition: none; }
+}
+
 /* View Transitions API — seidenweich zwischen Seiten */
 @view-transition { navigation: auto; }
 ::view-transition-old(root),

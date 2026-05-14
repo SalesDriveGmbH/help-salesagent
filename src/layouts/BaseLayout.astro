@@ -104,6 +104,24 @@ const fullTitle = title.includes("SalesAgent Hilfe") ? title : `${title} — Sal
     </script>
 
     <script>
+      // ── Scroll-Reveal via IntersectionObserver ──────────────────────────
+      (function () {
+        const targets = document.querySelectorAll<HTMLElement>("[data-reveal]");
+        if (!targets.length || !("IntersectionObserver" in window)) {
+          targets.forEach((t) => t.classList.add("is-visible"));
+          return;
+        }
+        const io = new IntersectionObserver((entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              (e.target as HTMLElement).classList.add("is-visible");
+              io.unobserve(e.target);
+            }
+          }
+        }, { rootMargin: "0px 0px -10% 0px", threshold: 0.05 });
+        targets.forEach((t) => io.observe(t));
+      })();
+
       // ── Command Palette lazy mount ──────────────────────────────────────
       const paletteTarget = document.getElementById("palette-mount");
       let paletteMounted = false;
