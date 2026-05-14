@@ -13,8 +13,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     if (
       path === "/api/admin/login" ||
       path === "/api/admin/verify" ||
-      path === "/api/admin/logout" ||
-      path === "/api/admin/intercom-tags-list"
+      path === "/api/admin/logout"
     ) {
       return next();
     }
