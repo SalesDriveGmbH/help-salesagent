@@ -22,9 +22,13 @@ const { title, hideHeader = false } = Astro.props;
     <script is:inline>
       (function () {
         try {
-          var saved = localStorage.getItem("sd-theme");
+          var mode = localStorage.getItem("sd-theme-mode");
+          if (mode !== "system" && mode !== "light" && mode !== "dark") {
+            var legacy = localStorage.getItem("sd-theme");
+            mode = (legacy === "light" || legacy === "dark") ? legacy : "system";
+          }
           var sysLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
-          var theme = saved || (sysLight ? "light" : "dark");
+          var theme = mode === "system" ? (sysLight ? "light" : "dark") : mode;
           document.documentElement.setAttribute("data-theme", theme);
         } catch (e) {
           document.documentElement.setAttribute("data-theme", "dark");

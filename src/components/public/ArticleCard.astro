@@ -7,16 +7,34 @@ interface Props {
   title: string;
   tldr?: string;
   status: "complete" | "partial" | "todo";
+  lastUpdated?: string; // ISO YYYY-MM-DD
   variant?: "compact" | "default";
 }
 
-const { href, id, title, tldr, status, variant = "default" } = Astro.props;
+const { href, id, title, tldr, status, lastUpdated, variant = "default" } = Astro.props;
+
+// "Recently updated" wenn ≤ 7 Tage alt
+let isFresh = false;
+let freshLabel = "";
+if (lastUpdated) {
+  const updated = new Date(lastUpdated);
+  if (!isNaN(updated.getTime())) {
+    const days = Math.floor((Date.now() - updated.getTime()) / (1000 * 60 * 60 * 24));
+    if (days <= 7) {
+      isFresh = true;
+      freshLabel = days <= 0 ? "Heute aktualisiert" : days === 1 ? "Gestern aktualisiert" : `Vor ${days} Tagen aktualisiert`;
+    }
+  }
+}
 ---
 
-<a href={href} class="card group block p-5 transition-transform hover:translate-y-[-1px]">
+<a href={href} class="card group block p-5">
   <div class="flex items-start justify-between gap-3">
     <div class="flex items-center gap-2 text-[10px] uppercase tracking-[0.16em]" style="color: var(--color-text-tertiary);">
       <span>{id}</span>
+      {isFresh && (
+        <span class="article-card__fresh" title={freshLabel} aria-label={freshLabel}></span>
+      )}
     </div>
     {status !== "complete" && <StatusBadge status={status} />}
   </div>
@@ -33,3 +51,22 @@ const { href, id, title, tldr, status, variant = "default" } = Astro.props;
     </svg>
   </div>
 </a>
+
+<style>
+  .article-card__fresh {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-gold-primary);
+    box-shadow: 0 0 0 0 rgba(191, 163, 124, 0.6);
+    animation: fresh-pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes fresh-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(191, 163, 124, 0.55); }
+    50%      { box-shadow: 0 0 0 4px rgba(191, 163, 124, 0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .article-card__fresh { animation: none; }
+  }
+</style>

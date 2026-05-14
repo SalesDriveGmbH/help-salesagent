@@ -52,6 +52,7 @@ const completeCount = articles.filter((a) => a.data.status === "complete").lengt
           title={a.data.title}
           tldr={a.data.tldr}
           status={a.data.status}
+          lastUpdated={a.data.last_updated}
         />
       ))}
     </div>
