@@ -211,6 +211,33 @@ function nextUpSlug(e: CollectionEntry<"articles">) {
   </article>
 
   <script is:inline define:vars={{ glossary: GLOSSARY }}>
+    // ── Code-Blocks bekommen einen Copy-Button ──────────────────────────
+    (function () {
+      const blocks = document.querySelectorAll<HTMLElement>(".prose-gold pre");
+      for (const pre of blocks) {
+        if (pre.querySelector(".code-copy")) continue;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "code-copy";
+        btn.textContent = "Copy";
+        btn.setAttribute("aria-label", "Code kopieren");
+        pre.style.position = "relative";
+        pre.appendChild(btn);
+        btn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          const code = pre.querySelector("code");
+          const text = code ? code.textContent || "" : pre.textContent || "";
+          try {
+            await navigator.clipboard.writeText(text);
+            btn.textContent = "Kopiert ✓";
+            setTimeout(() => (btn.textContent = "Copy"), 1400);
+          } catch {
+            btn.textContent = "Fehler";
+          }
+        });
+      }
+    })();
+
     // ── Glossar-Tooltips ────────────────────────────────────────────────
     // Wir gehen durch alle Text-Knoten im prose-gold-Container und wrappen
     // Glossar-Begriffe in <abbr> mit data-glossary.

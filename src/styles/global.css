@@ -471,6 +471,29 @@ body {
   margin: 2rem 0;
 }
 
+/* Code-Block Copy-Button */
+.prose-gold pre { position: relative; }
+.prose-gold pre .code-copy {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  background: color-mix(in srgb, var(--color-bg-elevated) 70%, transparent);
+  color: var(--color-text-tertiary);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 5px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+.prose-gold pre:hover .code-copy { opacity: 1; }
+.prose-gold pre .code-copy:hover {
+  color: var(--color-gold-bright);
+  border-color: var(--color-border-default);
+}
+
 /* Glossar-Tooltips */
 .glossary-term {
   text-decoration: none;
@@ -514,6 +537,53 @@ body {
 
 /* Geist + Geist Mono werden über @fontsource-variable lokal eingebunden (oben).
    Astro/Vite serven die woff2-Files unter /_astro/, lange Cache-Lifetime. */
+
+/* Print-Stylesheet — Artikel sauber druckbar */
+@media print {
+  body { background: #FFFFFF !important; color: #111 !important; }
+  .aurora, .grain, .glass-bar, header, footer,
+  #reading-progress, .sandy-trigger, .skip-link,
+  .welcome-card, #ob-tour, .article-action,
+  #chat-mount, #palette-mount,
+  aside, [data-share], [data-bookmark],
+  .recent-banner, .hero-orb {
+    display: none !important;
+  }
+  main, article, .prose-gold {
+    color: #111 !important;
+    background: #FFFFFF !important;
+  }
+  .prose-gold h1, .prose-gold h2, .prose-gold h3, .prose-gold h4 {
+    color: #000 !important;
+  }
+  .prose-gold a {
+    color: #000 !important;
+    text-decoration: underline !important;
+  }
+  .prose-gold a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.7em;
+    color: #555;
+  }
+  .prose-gold pre, .prose-gold code {
+    background: #F5F5F5 !important;
+    color: #111 !important;
+    border: 1px solid #DDD !important;
+  }
+  .card {
+    background: #FFFFFF !important;
+    border: 1px solid #DDD !important;
+    box-shadow: none !important;
+  }
+  /* Wider Druck-Container, klassisches Layout */
+  .max-w-6xl, .max-w-7xl, .max-w-4xl { max-width: none !important; }
+  article {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  /* Glossar im Druck — kein Underline, nur Plain Text */
+  .glossary-term { border-bottom: 0 !important; }
+}
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
