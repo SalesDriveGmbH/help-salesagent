@@ -124,11 +124,11 @@ body {
   mix-blend-mode: multiply;
 }
 
-/* Glass-Header (theme-aware) */
+/* Glass-Header (theme-aware) — sparsamer Blur für weniger GPU-Last */
 .glass-bar {
-  background: color-mix(in srgb, var(--color-bg-base) 72%, transparent);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: color-mix(in srgb, var(--color-bg-base) 90%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
@@ -160,9 +160,7 @@ body {
 
 /* Cards */
 .card {
-  background: color-mix(in srgb, var(--color-bg-card) 70%, transparent);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: color-mix(in srgb, var(--color-bg-card) 88%, transparent);
   border: 1px solid var(--color-border-subtle);
   border-radius: 8px;
   transition: border-color 220ms ease, background 220ms ease, transform 220ms ease;
@@ -417,20 +415,20 @@ body {
   border-color: rgba(227, 166, 106, 0.25);
 }
 
-/* Geist-Font */
+/* Geist-Font (variable, latin) */
 @font-face {
   font-family: "Geist";
   font-style: normal;
   font-weight: 100 900;
   font-display: swap;
-  src: url("https://cdn.jsdelivr.net/npm/@fontsource-variable/geist@5.1.0/files/geist-latin-wght-normal.woff2") format("woff2-variations");
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource-variable/geist@5.1.0/files/geist-latin-wght-normal.woff2") format("woff2");
 }
 @font-face {
   font-family: "Geist Mono";
   font-style: normal;
   font-weight: 100 900;
   font-display: swap;
-  src: url("https://cdn.jsdelivr.net/npm/@fontsource-variable/geist-mono@5.1.0/files/geist-mono-latin-wght-normal.woff2") format("woff2-variations");
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource-variable/geist-mono@5.1.0/files/geist-mono-latin-wght-normal.woff2") format("woff2");
 }
 
 /* Scrollbar */
