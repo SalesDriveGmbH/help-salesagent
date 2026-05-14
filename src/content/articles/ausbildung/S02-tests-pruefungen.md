@@ -2,16 +2,24 @@
 id: "S02"
 title: "Wo finde ich Tests und Prüfungen?"
 category: "ausbildung"
-status: "todo"
-keywords: ["tests", "prüfungen", "memberspot", "ausbildung", "zertifikat"]
-related: ["S01"]
+status: "complete"
+keywords: ["tests", "prüfungen", "mitgliederbereich", "ausbildung", "zertifikat", "app salesdrive"]
+related: ["S01", "P01"]
 last_updated: "2026-05-14"
 faq_priority: 76
-tldr: "Pfad zu Tests/Prüfungen in Memberspot wird ergänzt."
+tldr: "Tests und Prüfungen findest du unter app.salesdrive.at im Mitgliederbereich."
 escalate_to: "office@salesagent.at"
 escalate_tag: "ausbildung"
 ---
 
-Tests und Prüfungen sind Teil der Memberspot-Ausbildung. Der genaue Pfad zur Test-Sektion wird gerade dokumentiert.
+**Auf den Punkt:** Tests und Prüfungen findest du unter [`app.salesdrive.at`](https://app.salesdrive.at) → **Mitgliederbereich**.
 
-**Bei Problemen mit einem Test:** schreib uns kurz an `office@salesagent.at`.
+Die schriftliche Abschlussprüfung ist Teil deines Onboardings (siehe P01) und entscheidet über deine finale Freigabe für dein erstes Projekt.
+
+## Bei Problemen mit einem Test
+
+Kurz an `office@salesagent.at` schreiben mit:
+
+- Welcher Test
+- Welcher Fehler / welches Problem
+- Screenshot wenn möglich

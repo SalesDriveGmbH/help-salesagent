@@ -12,6 +12,8 @@ escalate_to: "office@salesagent.at"
 escalate_tag: "kuendigung"
 ---
 
+> ⚠️ **Kein rechtsverbindlicher Hinweis:** Wir bieten **keine Rechtsberatung**. Für individuelle Vertragsauslegung oder Ausgleichsansprüche wende dich an einen Anwalt.
+
 (HVV §16) **1 Monat zum Monatsende.** Schriftform (Email reicht).
 
 **Wohin:** `office@salesagent.at`.

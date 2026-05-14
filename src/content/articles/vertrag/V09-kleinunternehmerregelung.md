@@ -12,7 +12,7 @@ escalate_to: "office@salesagent.at"
 escalate_tag: "vertrag"
 ---
 
-> ⚠️ **Steuerberater-Disclaimer:** Diese Information ist allgemein. Für deine konkrete steuerliche Situation halte unbedingt Rücksprache mit deinem eigenen Steuerberater. Die Kleinunternehmer-Grenzen können je nach Land und Jahr unterschiedlich sein.
+> ⚠️ **Kein rechtsverbindlicher Hinweis:** Wir bieten **keine Steuer- oder Rechtsberatung**. Für deine konkrete steuerliche Situation halte unbedingt Rücksprache mit deinem eigenen Steuerberater. Die Kleinunternehmer-Grenzen können je nach Land und Jahr unterschiedlich sein.
 
 ## Was du selbst tust
 

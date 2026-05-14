@@ -25,4 +25,4 @@ Du bist selbstständiger Unternehmer (HVV §2). Du musst eigenständig:
 
 **Wohin den Gewerbe- bzw. Steuernummern-Nachweis senden:** vorläufig an `office@salesagent.at` mit Betreff *Gewerbenachweis* — die finale Zieladresse wird gerade festgelegt.
 
-> ⚠️ **Hinweis:** Diese Information ist allgemein. Für deine konkrete steuerliche Situation halte bitte Rücksprache mit deinem Steuerberater.
+> ⚠️ **Kein rechtsverbindlicher Hinweis:** Wir bieten **keine Steuer- oder Rechtsberatung**. Für deine konkrete steuerliche Situation halte bitte Rücksprache mit deinem eigenen Steuerberater.

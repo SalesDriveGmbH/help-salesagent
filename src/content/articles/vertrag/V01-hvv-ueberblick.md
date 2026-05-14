@@ -12,6 +12,8 @@ escalate_to: "office@salesagent.at"
 escalate_tag: "vertrag"
 ---
 
+> ⚠️ **Kein rechtsverbindlicher Hinweis:** Dieser Überblick ersetzt **keine Rechtsberatung**. Für vertragsspezifische Fragen wende dich bitte an einen Anwalt.
+
 Der HVV wird über **PandaDoc** elektronisch unterzeichnet.
 
 ## Eckpunkte

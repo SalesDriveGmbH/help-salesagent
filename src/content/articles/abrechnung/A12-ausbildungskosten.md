@@ -12,7 +12,7 @@ escalate_to: "accounting@salesdrive.at"
 escalate_tag: "abrechnung"
 ---
 
-**TL;DR:** 3.500 € Lizenzgebühr (PNV §2) wird automatisch von der laufenden Vergütung abgezogen — kein separater Antrag.
+**Auf den Punkt:** 3.500 € Lizenzgebühr (PNV §2) wird automatisch von der laufenden Vergütung abgezogen — kein separater Antrag.
 
 ## Mechanik
 

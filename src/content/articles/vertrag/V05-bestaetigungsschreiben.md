@@ -2,16 +2,27 @@
 id: "V05"
 title: "Bestätigungsschreiben für Behörden"
 category: "vertrag"
-status: "todo"
-keywords: ["bestätigung", "schreiben", "behörde", "ams", "bank"]
+status: "complete"
+keywords: ["bestätigung", "schreiben", "behörde", "ams", "bank", "auftrag"]
 related: ["V01"]
 last_updated: "2026-05-14"
 faq_priority: 70
-tldr: "Aussteller (Office) wird gerade benannt."
+tldr: "Anfrage an office@salesagent.at — wir stellen Bestätigungsschreiben auf Anforderung aus."
 escalate_to: "office@salesagent.at"
 escalate_tag: "vertrag"
 ---
 
-Bestätigungsschreiben (für Behörden, Bank, AMS o.ä.) stellen wir auf Anfrage aus.
+**Auf den Punkt:** Bestätigungsschreiben (z.B. für Bank, AMS, Behörden) stellen wir **auf Anfrage** aus.
 
-**Anfrage:** kurz an `office@salesagent.at` mit Zweck des Schreibens und Empfänger-Adresse.
+## So beantragst du es
+
+Mail an `office@salesagent.at` mit:
+
+- Zweck des Schreibens (Bank, AMS, Visum, etc.)
+- Empfänger / Adressat
+- Sprache (Deutsch / Englisch)
+- Falls vorhanden: Vorlage oder Anforderungen des Empfängers
+
+Bearbeitungszeit: in der Regel innerhalb von **2–3 Werktagen**.
+
+> ⚠️ **Kein rechtsverbindlicher Hinweis:** Wir bieten keine Rechts- oder Steuerberatung. Für rechtliche Fragen rund um das Bestätigungsschreiben wende dich an deinen Rechtsberater.

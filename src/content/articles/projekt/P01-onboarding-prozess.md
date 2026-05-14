@@ -12,7 +12,7 @@ escalate_to: "office@salesagent.at"
 escalate_tag: "projekt"
 ---
 
-**TL;DR:** Standardmäßig **4 Wochen** vom Start bis zum ersten Projekt. Wer engagiert dranbleibt, schafft es in **2 Wochen**.
+**Auf den Punkt:** Standardmäßig **4 Wochen** vom Start bis zum ersten Projekt. Wer engagiert dranbleibt, schafft es in **2 Wochen**.
 
 ## Der Ablauf
 
@@ -29,7 +29,7 @@ escalate_tag: "projekt"
 **2. Schulung & Training**
 
 - Live-Trainings besuchen (Di–Fr, siehe Artikel S03)
-- Skripte durcharbeiten (Memberspot)
+- Skripte durcharbeiten (Mitgliederbereich)
 - Roleplays
 
 **3. Freigabe durch Alex**

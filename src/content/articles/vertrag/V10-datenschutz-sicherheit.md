@@ -14,7 +14,7 @@ escalate_tag: "vertrag"
 
 ## Zwei-Faktor-Authentifizierung (2FA)
 
-**Nicht verpflichtend** für Close, Memberspot und das Dashboard — aber empfohlen, weil's einfach ist und einen Großteil der häufigsten Account-Übernahmen verhindert.
+**Nicht verpflichtend** für Close, Mitgliederbereich und das Dashboard — aber empfohlen, weil's einfach ist und einen Großteil der häufigsten Account-Übernahmen verhindert.
 
 ## Lead-Listen sind heikel
 
@@ -30,7 +30,7 @@ Alle Arbeit findet **innerhalb des CRMs (Close)** statt.
 
 Sofort melden — Mail oder Anruf an `office@salesagent.at` mit dem Vorfall.
 
-Wir setzen daraufhin **deine Passwörter für alle Systeme zurück** (Close, Memberspot, Dashboard), damit niemand mit dem gestohlenen Gerät auf Lead-Daten zugreifen kann.
+Wir setzen daraufhin **deine Passwörter für alle Systeme zurück** (Close, Mitgliederbereich, Dashboard), damit niemand mit dem gestohlenen Gerät auf Lead-Daten zugreifen kann.
 
 ## Datenaufbewahrung nach Vertragsende
 

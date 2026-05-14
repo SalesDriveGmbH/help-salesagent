@@ -1,6 +1,6 @@
 ---
 id: "T09"
-title: "Memberspot-Login funktioniert nicht"
+title: "Mitgliederbereich-Login funktioniert nicht"
 category: "technik"
 status: "complete"
 keywords: ["memberspot", "login", "passwort", "reset", "zugang"]
@@ -14,14 +14,14 @@ escalate_tag: "technik"
 
 ## So gehst du vor
 
-**1.** Passwort-Reset über die Memberspot-Login-Seite versuchen — der Reset-Link kommt per Mail.
+**1.** Passwort-Reset über die Mitgliederbereich-Login-Seite versuchen — der Reset-Link kommt per Mail.
 
 **2.** Falls auch der Reset nicht funktioniert oder die Mail nicht ankommt:
 
 Mail an `office@salesagent.at` mit:
 
 - Deinem Namen
-- Der Email-Adresse, mit der du in Memberspot registriert bist
-- Stichwort *„Memberspot-Login"*
+- Der Email-Adresse, mit der du in Mitgliederbereich registriert bist
+- Stichwort *„Mitgliederbereich-Login"*
 
 Wir setzen dein Konto manuell zurück.
