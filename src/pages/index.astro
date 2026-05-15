@@ -28,14 +28,12 @@ const recent = [...all]
     <div class="hero-orb" aria-hidden="true"></div>
     <div class="reveal max-w-4xl relative">
       <p class="text-[11px] uppercase tracking-[0.22em]" style="color: var(--color-gold-dim);">SalesAgent · Hilfebereich</p>
-      <h1 class="hero-headline mt-6" style="color: var(--color-text-primary);">
-        <span class="hero-rotate" aria-live="polite">
-          <span class="hero-rotate__word is-active">Frag Sandy</span>
-          <span class="hero-rotate__word">Find Antworten</span>
-          <span class="hero-rotate__word">Lerne schneller</span>
-          <span class="hero-rotate__dot" aria-hidden="true">.</span>
-        </span>
-      </h1>
+      <h1 class="hero-headline mt-6" style="color: var(--color-text-primary);"><span
+        class="hero-rotate" aria-live="polite"><span
+        class="hero-rotate__word is-active">Frag Sandy</span><span
+        class="hero-rotate__word">Find Antworten</span><span
+        class="hero-rotate__word">Lerne schneller</span><span
+        class="hero-rotate__dot" aria-hidden="true">.</span></span></h1>
       <p class="mt-7 max-w-2xl text-lg sm:text-xl" style="color: var(--color-text-secondary); letter-spacing: -0.012em; line-height: 1.5;">
         Deine AI-Assistentin beantwortet alle Fragen rund um Abrechnung, Onboarding, Tools und Vertrag — sofort, rund um die Uhr.
       </p>
@@ -156,7 +154,8 @@ const recent = [...all]
       transform: translateY(-0.18em);
     }
     .hero-rotate__dot {
-      color: var(--color-gold-bright);
+      color: var(--color-text-primary);
+      margin-left: -0.02em;
     }
     @media (prefers-reduced-motion: reduce) {
       .hero-rotate__word { transition: none; }
