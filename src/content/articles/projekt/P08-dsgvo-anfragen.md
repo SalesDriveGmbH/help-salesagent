@@ -7,7 +7,7 @@ keywords: ["dsgvo", "datenschutz", "löschen", "anfrage", "lead", "kontakt", "wi
 related: ["P07", "V10"]
 last_updated: "2026-05-14"
 faq_priority: 37
-tldr: "Anfrage in die WhatsApp-Gruppe posten, Lead Bescheid geben, dann Daten löschen und auf „will nicht mehr kontaktiert werden" stellen."
+tldr: "Anfrage in die WhatsApp-Gruppe posten, Lead Bescheid geben, dann Daten löschen und den Kontakt sperren."
 escalate_to: "office@salesagent.at"
 escalate_tag: "projekt"
 ---

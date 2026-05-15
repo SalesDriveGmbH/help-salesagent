@@ -117,7 +117,7 @@ function ChatWidget() {
         {
           role: "assistant",
           content:
-            "Soll ich das an unser Support-Team weitergeben? Dann meldet sich jemand direkt bei dir per Email.\n\nKlick auf **„Mit Support reden"** unten — oder antworte mit *„Ja"*.",
+            "Soll ich das an unser Support-Team weitergeben? Dann meldet sich jemand direkt bei dir per Email.\n\nKlick unten auf **Mit Support reden** — oder antworte einfach mit **Ja**.",
         },
       ]);
       setAutoSuggested(true);

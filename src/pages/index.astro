@@ -221,13 +221,8 @@ const recent = [...all]
     document.querySelectorAll("[data-search-open]").forEach((b) => {
       b.addEventListener("click", () => window.dispatchEvent(new CustomEvent("palette:open")));
     });
-    // Beliebt-Buttons: öffnen Palette mit Voreingabe
-    document.querySelectorAll("[data-quick]").forEach((b) => {
-      b.addEventListener("click", () => {
-        const q = (b as HTMLElement).dataset.quick ?? "";
-        window.dispatchEvent(new CustomEvent("palette:open-with-query", { detail: { query: q } }));
-      });
-    });
+    // Die "Beliebt"-Chips werden von der SearchBar-Komponente selbst behandelt
+    // (data-quick → befüllt die Inline-Suche).
 
     // Rotating Hero-Words
     (function () {

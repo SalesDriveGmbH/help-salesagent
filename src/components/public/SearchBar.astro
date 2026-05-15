@@ -8,40 +8,368 @@ const { size = "md", placeholder = "Was möchtest du wissen?" } = Astro.props;
 const isLg = size === "lg";
 ---
 
-<button
-  type="button"
-  data-search-trigger
-  class={`search-trigger group relative flex w-full items-center gap-3 rounded-md border text-left transition-all ${isLg ? "h-14 px-5 text-base" : "h-11 px-4 text-sm"}`}
-  aria-label="Suche öffnen (⌘K)"
->
-  <svg width={isLg ? 20 : 18} height={isLg ? 20 : 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-text-tertiary);">
-    <circle cx="11" cy="11" r="7"></circle>
-    <path d="m21 21-4.35-4.35"></path>
-  </svg>
-  <span class="flex-1 truncate" style="color: var(--color-text-tertiary);">{placeholder}</span>
-  <span class="hidden items-center gap-1 sm:flex">
-    <kbd class="rounded border px-1.5 py-0.5 font-mono text-[11px]" style="border-color: var(--color-border-default); color: var(--color-text-tertiary);">⌘K</kbd>
-  </span>
-</button>
+<div class="kb-search">
+  <div class={`kb-search__field ${isLg ? "kb-search__field--lg" : ""}`}>
+    <svg class="kb-search__icon" width={isLg ? 20 : 18} height={isLg ? 20 : 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="7"></circle>
+      <path d="m21 21-4.35-4.35"></path>
+    </svg>
+    <input
+      type="search"
+      id="kb-search-input"
+      class="kb-search__input"
+      placeholder={placeholder}
+      autocomplete="off"
+      spellcheck="false"
+      aria-label="Wissensdatenbank durchsuchen"
+    />
+    <button type="button" class="kb-search__clear" id="kb-search-clear" hidden aria-label="Suche leeren">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <div id="kb-search-results" class="kb-search__results" hidden></div>
+</div>
 
 <style>
-  .search-trigger {
+  .kb-search { position: relative; width: 100%; }
+
+  .kb-search__field {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    height: 44px;
+    padding: 0 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--color-border-subtle);
     background: color-mix(in srgb, var(--color-bg-elevated) 80%, transparent);
-    border-color: var(--color-border-subtle);
+    transition: border-color 180ms ease, background 180ms ease, box-shadow 220ms ease;
+  }
+  .kb-search__field--lg { height: 56px; padding: 0 1.25rem; gap: 0.9rem; }
+  :root[data-theme="light"] .kb-search__field { background: #FFFFFF; border-color: var(--color-border-default); }
+  .kb-search__field:focus-within {
+    border-color: var(--color-gold-primary);
+    box-shadow: 0 0 0 4px var(--gold-glow);
+  }
+  .kb-search__icon { flex-shrink: 0; color: var(--color-text-tertiary); }
+  .kb-search__input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: 0;
+    outline: none;
+    color: var(--color-text-primary);
+    font-family: inherit;
+    font-size: 1rem;
+    letter-spacing: -0.01em;
+  }
+  .kb-search__field--lg .kb-search__input { font-size: 1.0625rem; }
+  .kb-search__input::placeholder { color: var(--color-text-tertiary); }
+  .kb-search__input::-webkit-search-decoration,
+  .kb-search__input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+
+  .kb-search__clear {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    border: 0;
+    background: transparent;
+    color: var(--color-text-tertiary);
     cursor: pointer;
+    transition: color 150ms ease, background 150ms ease;
   }
-  .search-trigger:hover {
-    border-color: var(--color-border-default);
-    background: color-mix(in srgb, var(--color-bg-elevated) 95%, transparent);
+  .kb-search__clear:hover { color: var(--color-text-primary); background: var(--color-bg-hover); }
+
+  .kb-search__results {
+    margin-top: 0.6rem;
+    border-radius: 10px;
+    border: 1px solid var(--color-border-default);
+    background: color-mix(in srgb, var(--color-bg-elevated) 96%, transparent);
+    box-shadow: 0 20px 50px -16px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    animation: kb-results-in 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
-  :root[data-theme="light"] .search-trigger { background: #FFFFFF; border-color: var(--color-border-default); }
-  :root[data-theme="light"] .search-trigger:hover { background: #FFFFFF; border-color: var(--color-border-strong); }
+  :root[data-theme="light"] .kb-search__results {
+    background: #FFFFFF;
+    box-shadow: 0 20px 50px -16px rgba(26, 22, 18, 0.18);
+  }
+  @keyframes kb-results-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .kb-result {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.85rem 1.1rem;
+    border-bottom: 1px solid var(--color-border-subtle);
+    transition: background 140ms ease;
+  }
+  .kb-result:last-child { border-bottom: 0; }
+  .kb-result:hover,
+  .kb-result.is-active {
+    background: color-mix(in srgb, var(--color-gold-primary) 9%, transparent);
+  }
+  .kb-result__main { flex: 1; min-width: 0; }
+  .kb-result__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-text-tertiary);
+  }
+  .kb-result__id { font-family: var(--font-mono); }
+  .kb-result__title {
+    margin-top: 0.15rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    letter-spacing: -0.01em;
+  }
+  .kb-result:hover .kb-result__title,
+  .kb-result.is-active .kb-result__title { color: var(--color-gold-bright); }
+  .kb-result__tldr {
+    margin-top: 0.15rem;
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .kb-result__arrow { flex-shrink: 0; color: var(--color-text-quaternary); }
+  .kb-result:hover .kb-result__arrow,
+  .kb-result.is-active .kb-result__arrow { color: var(--color-gold-bright); }
+
+  .kb-search__state {
+    padding: 1.5rem 1.1rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary);
+  }
+  .kb-search__state a, .kb-search__state button {
+    color: var(--color-gold-light);
+    text-decoration: underline;
+    background: transparent; border: 0; cursor: pointer;
+    font: inherit;
+  }
 </style>
 
 <script>
-  document.querySelectorAll("[data-search-trigger]").forEach((el) => {
-    el.addEventListener("click", () => {
-      window.dispatchEvent(new CustomEvent("palette:open"));
+  interface IndexItem {
+    id: string; title: string; category: string; slug: string; url: string;
+    tldr: string; keywords: string[]; status: string; priority: number; body: string;
+  }
+
+  const CATEGORY_LABEL: Record<string, string> = {
+    abrechnung: "Abrechnung", technik: "Technik", projekt: "Projekte",
+    vertrag: "Vertrag", ausbildung: "Ausbildung", community: "Community",
+  };
+
+  function norm(s: string): string {
+    return s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/ß/g, "ss");
+  }
+
+  function scoreItem(it: IndexItem, q: string): number {
+    const nq = norm(q);
+    const title = norm(it.title);
+    const id = norm(it.id);
+    const kw = it.keywords.map(norm).join(" ");
+    const tldr = norm(it.tldr);
+    const body = norm(it.body);
+    let s = 0;
+    if (id === nq) s += 200;
+    if (title.includes(nq)) s += 100;
+    if (title.startsWith(nq)) s += 50;
+    if (kw.includes(nq)) s += 45;
+    if (tldr.includes(nq)) s += 25;
+    if (body.includes(nq)) s += 10;
+    for (const w of nq.split(/\s+/).filter((x) => x.length >= 2)) {
+      if (title.includes(w)) s += 28;
+      if (kw.includes(w)) s += 12;
+      if (tldr.includes(w)) s += 7;
+      if (body.includes(w)) s += 3;
+    }
+    return s;
+  }
+
+  function init() {
+    const input = document.getElementById("kb-search-input") as HTMLInputElement | null;
+    const results = document.getElementById("kb-search-results");
+    const clearBtn = document.getElementById("kb-search-clear");
+    if (!input || !results || !clearBtn) return;
+
+    let index: IndexItem[] | null = null;
+    let loading = false;
+    let activeIdx = -1;
+    let current: IndexItem[] = [];
+
+    async function ensureIndex() {
+      if (index || loading) return;
+      loading = true;
+      try {
+        const res = await fetch("/search-index.json");
+        index = await res.json();
+      } catch {
+        index = [];
+      } finally {
+        loading = false;
+      }
+    }
+
+    function render(q: string) {
+      const query = q.trim();
+      if (query.length < 2) {
+        results.hidden = true;
+        results.innerHTML = "";
+        current = [];
+        activeIdx = -1;
+        return;
+      }
+      if (!index) {
+        results.hidden = false;
+        results.innerHTML = `<div class="kb-search__state">Suche lädt …</div>`;
+        return;
+      }
+      const scored = index
+        .map((it) => ({ it, s: scoreItem(it, query) }))
+        .filter((x) => x.s > 0)
+        .sort((a, b) => b.s - a.s)
+        .slice(0, 6);
+      current = scored.map((x) => x.it);
+      activeIdx = -1;
+
+      results.hidden = false;
+      if (current.length === 0) {
+        results.innerHTML = `<div class="kb-search__state">
+          Keine Treffer für „${escapeHtml(query)}".
+          <button data-open-chat>Frag Sandy</button>
+        </div>`;
+        return;
+      }
+      results.innerHTML = current.map((it, i) => `
+        <a href="${it.url}" class="kb-result" data-idx="${i}">
+          <div class="kb-result__main">
+            <div class="kb-result__meta">
+              <span class="kb-result__id">${it.id}</span>
+              <span>·</span>
+              <span>${CATEGORY_LABEL[it.category] ?? it.category}</span>
+            </div>
+            <div class="kb-result__title">${escapeHtml(it.title)}</div>
+            ${it.tldr ? `<div class="kb-result__tldr">${escapeHtml(it.tldr)}</div>` : ""}
+          </div>
+          <svg class="kb-result__arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
+        </a>
+      `).join("");
+    }
+
+    function escapeHtml(s: string): string {
+      return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function setActive(idx: number) {
+      const rows = results.querySelectorAll<HTMLElement>(".kb-result");
+      rows.forEach((r, i) => r.classList.toggle("is-active", i === idx));
+      activeIdx = idx;
+      rows[idx]?.scrollIntoView({ block: "nearest" });
+    }
+
+    let debounce: ReturnType<typeof setTimeout> | null = null;
+    input.addEventListener("input", () => {
+      const val = input.value;
+      clearBtn.hidden = val.length === 0;
+      if (debounce) clearTimeout(debounce);
+      debounce = setTimeout(async () => {
+        await ensureIndex();
+        render(val);
+        // no-result tracking
+        if (val.trim().length >= 2 && current.length === 0 && index) {
+          navigator.sendBeacon?.("/api/track", JSON.stringify({ event: "search-no-result", value: val.trim() }));
+        }
+      }, 130);
     });
-  });
+
+    input.addEventListener("focus", ensureIndex);
+
+    input.addEventListener("keydown", (e) => {
+      if (current.length === 0) return;
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setActive(Math.min(current.length - 1, activeIdx + 1));
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setActive(Math.max(0, activeIdx - 1));
+      } else if (e.key === "Enter") {
+        const target = current[activeIdx] ?? current[0];
+        if (target) {
+          navigator.sendBeacon?.("/api/track", JSON.stringify({ event: "search", value: input.value.trim() }));
+          window.location.assign(target.url);
+        }
+      } else if (e.key === "Escape") {
+        input.value = "";
+        clearBtn.hidden = true;
+        render("");
+        input.blur();
+      }
+    });
+
+    // Click auf Treffer → search-Event tracken
+    results.addEventListener("click", (e) => {
+      const link = (e.target as HTMLElement).closest(".kb-result");
+      if (link && input.value.trim()) {
+        navigator.sendBeacon?.("/api/track", JSON.stringify({ event: "search", value: input.value.trim() }));
+      }
+      const chat = (e.target as HTMLElement).closest("[data-open-chat]");
+      if (chat) {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent("sandy:open"));
+      }
+    });
+
+    clearBtn.addEventListener("click", () => {
+      input.value = "";
+      clearBtn.hidden = true;
+      render("");
+      input.focus();
+    });
+
+    // Klick außerhalb schließt die Resultate
+    document.addEventListener("click", (e) => {
+      if (!(e.target as HTMLElement).closest(".kb-search")) {
+        results.hidden = true;
+      }
+    });
+    input.addEventListener("focus", () => {
+      if (input.value.trim().length >= 2 && current.length) results.hidden = false;
+    });
+
+    // Beliebt-Buttons befüllen die Suche
+    document.querySelectorAll<HTMLElement>("[data-quick]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const q = btn.dataset.quick ?? "";
+        input.value = q;
+        clearBtn.hidden = false;
+        input.focus();
+        await ensureIndex();
+        render(q);
+        input.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
 </script>

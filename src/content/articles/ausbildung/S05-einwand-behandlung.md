@@ -1,6 +1,6 @@
 ---
 id: "S05"
-title: "Einwand-Behandlung: „Wir haben schon einen Anbieter / kein Interesse""
+title: "Einwand-Behandlung — kein Interesse, schon einen Anbieter"
 category: "ausbildung"
 status: "complete"
 keywords: ["einwand", "kein interesse", "anbieter", "wunschtechnik", "objection", "skript"]

@@ -7,7 +7,7 @@ keywords: ["aggressiv", "beschimpfung", "konflikt", "deeskalation", "beschwerde"
 related: ["S05", "P08"]
 last_updated: "2026-05-14"
 faq_priority: 23
-tldr: "Ruhig bleiben, durchatmen, nett beenden. Lead als „persönlich ungeeignet" schließen. Beschwerden in der Gruppe teilen und im Coaching ansprechen."
+tldr: "Ruhig bleiben, durchatmen, nett beenden. Lead als persönlich ungeeignet schließen. Beschwerden in der Gruppe teilen und im Coaching ansprechen."
 escalate_to: "office@salesagent.at"
 escalate_tag: "ausbildung"
 ---
