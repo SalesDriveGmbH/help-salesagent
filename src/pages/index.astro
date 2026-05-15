@@ -33,7 +33,8 @@ const recent = [...all]
           <span class="hero-rotate__word is-active">Frag Sandy</span>
           <span class="hero-rotate__word">Find Antworten</span>
           <span class="hero-rotate__word">Lerne schneller</span>
-        </span><span style="color: var(--color-gold-bright);">.</span>
+          <span class="hero-rotate__dot" aria-hidden="true">.</span>
+        </span>
       </h1>
       <p class="mt-7 max-w-2xl text-lg sm:text-xl" style="color: var(--color-text-secondary); letter-spacing: -0.012em; line-height: 1.5;">
         Deine AI-Assistentin beantwortet alle Fragen rund um Abrechnung, Onboarding, Tools und Vertrag — sofort, rund um die Uhr.
@@ -67,9 +68,10 @@ const recent = [...all]
   <style>
     .hero-headline {
       font-weight: 600;
-      letter-spacing: -0.045em;
-      line-height: 0.95;
-      font-size: clamp(3.5rem, 11vw, 8.5rem);
+      letter-spacing: -0.04em;
+      line-height: 1;
+      font-size: clamp(2.5rem, 6vw, 4.75rem);
+      white-space: nowrap;
     }
     .hero-chat-cta {
       display: inline-flex;
@@ -152,6 +154,9 @@ const recent = [...all]
     .hero-rotate__word.is-leaving {
       opacity: 0;
       transform: translateY(-0.18em);
+    }
+    .hero-rotate__dot {
+      color: var(--color-gold-bright);
     }
     @media (prefers-reduced-motion: reduce) {
       .hero-rotate__word { transition: none; }
